@@ -1,14 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+// import { LinearGradient } from 'expo-linear-gradient';
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <LinearGradient
+      {/* <LinearGradient
         colors={['#00aaff', 'transparent']}
         style={styles.background}
-      />
+      /> */}
         <View style={styles.containerInner}>
           <View style={{  }}>
             <Text style={styles.welcomeFont}>Welcome to</Text>
