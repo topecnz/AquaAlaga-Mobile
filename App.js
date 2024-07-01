@@ -1,36 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable } from 'react-native';
-// import { LinearGradient } from 'expo-linear-gradient';
+import { NavigationContainer } from '@react-navigation/native';
+import { Stack } from 'expo-router';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      {/* <LinearGradient
-        colors={['#00aaff', 'transparent']}
-        style={styles.background}
-      /> */}
-        <View style={styles.containerInner}>
-          <View style={{  }}>
-            <Text style={styles.welcomeFont}>Welcome to</Text>
-          </View>
-          <View style={styles.titleContainer}>
-            <View style={styles.logoShadow}>
-              <Image
-                style={styles.logoSize}
-                resizeMode='contains'
-                source={require('./assets/logo.png')}/>
-            </View>
-            <Text style={styles.titleFont}>AquaAlaga</Text>
-          </View>
-          <View>
-            <Pressable onPress={() => Alert.alert("pressed!")}>
-              <View style={styles.button}>
-                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Login</Text>
-              </View>
-            </Pressable>
-          </View>
-        </View>
-    </View>
+    <NavigationContainer>
+      <Stack />
+    </NavigationContainer>
   );
 }
 
