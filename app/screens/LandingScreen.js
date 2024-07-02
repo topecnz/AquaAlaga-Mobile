@@ -20,7 +20,7 @@ function LandingScreen(props) {
             <Text style={styles.titleFont}>AquaAlaga</Text>
           </View>
           <View>
-            <Pressable onPress={() => Alert.alert("pressed!")}>
+            <Pressable onPress={() => props.navigation.navigate('Login')}>
               <View style={styles.button}>
                 <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Login</Text>
               </View>
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   button: {
     height: 50,
     width: "auto",
-    backgroundColor: "#0F6FA4",
+    backgroundColor: "#0E79B4",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10
