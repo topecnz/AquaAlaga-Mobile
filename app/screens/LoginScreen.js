@@ -35,7 +35,11 @@ function LoginScreen(props) {
                 />  
             </View>
             <View>
-                <Pressable onPress={() => Alert.alert("pressed!")}>
+                {/* Temporary access to home page */}
+                <Pressable onPress={() => props.navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'BottomTab' }]
+                })}>
                     <View style={styles.button}>
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Login</Text>
                     </View>
