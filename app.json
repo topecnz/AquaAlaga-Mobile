@@ -18,12 +18,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.topecnz.AquaAlagaMobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-    ]
+    "plugins": [],
+    "extra": {
+      "eas": {
+        "projectId": "c456562d-87ab-4a29-a888-f363924b605e"
+      }
+    }
   }
 }
