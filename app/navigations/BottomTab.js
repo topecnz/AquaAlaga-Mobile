@@ -1,11 +1,15 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../screens/HomeScreen';
 import ReportScreen from '../screens/ReportScreen';
 import ControlScreen from '../screens/ControlScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import { Ionicons } from '@expo/vector-icons';
+import ScheduleScreen from '../screens/ScheduleScreen';
+import ViewScheduleScreen from '../screens/ViewScheduleScreen';
+import AddScheduleScreen from '../screens/AddScheduleScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -40,6 +44,12 @@ function BottomTab(props) {
                     <Ionicons name='options' color={color} size={32}/>
                 )
             }}/>
+            <Tab.Screen name="Schedule Navigator" component={ScheduleNavigator} options={{
+                tabBarLabel: 'Schedules',
+                tabBarIcon: ({color, size}) => (
+                    <Ionicons name='time' color={color} size={32}/>
+                )
+            }}/>
             <Tab.Screen name="Notification" component={NotificationScreen} options={{
                 tabBarLabel: 'Notification',
                 tabBarIcon: ({color, size}) => (
@@ -57,3 +67,16 @@ function BottomTab(props) {
 }
 
 export default BottomTab;
+
+
+const Stack = createStackNavigator();
+
+function ScheduleNavigator(props) {
+    return (
+        <Stack.Navigator initialRouteName='Schedules' screenOptions={{headerShown: false}}>
+            <Stack.Screen name="Schedules" component={ScheduleScreen} />
+            <Stack.Screen name="View Schedule" component={ViewScheduleScreen} />
+            <Stack.Screen name="Add Schedule" component={AddScheduleScreen} />
+        </Stack.Navigator>
+    )
+}
