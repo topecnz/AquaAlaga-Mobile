@@ -41,7 +41,7 @@ function ProfileScreen(props) {
                         <Pressable onPress={() => props.navigation.reset({
                             index: 0,
                             routes: [{ name: 'Stack' }]
-                        })}>
+                            })}>
                             <View style={styles.button}>
                                 <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Login</Text>
                             </View>
