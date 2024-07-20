@@ -10,7 +10,6 @@ import { Ionicons } from '@expo/vector-icons';
 import ScheduleScreen from '../screens/ScheduleScreen';
 import ViewScheduleScreen from '../screens/ViewScheduleScreen';
 import AddScheduleScreen from '../screens/AddScheduleScreen';
-import StackNav from './StackNav';
 
 const Tab = createBottomTabNavigator();
 
@@ -63,7 +62,6 @@ function BottomTab(props) {
                     <Ionicons name='person' color={color} size={32}/>
                 )
             }}/>
-            <Tab.Screen name="Stack" component={StackNav}/>
         </Tab.Navigator>
     );
 }
