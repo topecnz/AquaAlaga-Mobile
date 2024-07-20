@@ -40,10 +40,10 @@ function ProfileScreen(props) {
                         </Pressable>
                         <Pressable onPress={() => props.navigation.reset({
                             index: 0,
-                            routes: [{ name: 'Stack' }]
+                            routes: [{ name: 'Landing' }]
                             })}>
                             <View style={styles.button}>
-                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Login</Text>
+                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Logout</Text>
                             </View>
                         </Pressable>
                     </View>
@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       alignItems: "center",
       borderRadius: 10,
+      marginVertical: 5
     },
     input: {
         height: 50,
