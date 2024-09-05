@@ -69,8 +69,8 @@ function ViewScheduleScreen(props) {
                             onValueChange={(itemValue, itemIndex) =>
                                 setSelectedLanguage(itemValue)
                             }>
-                            <Picker.Item label="Once" value="0" />
-                            <Picker.Item label="Daily" value="1" />
+                            <Picker.Item label="Once" value="once" />
+                            <Picker.Item label="Daily" value="daily" />
                         </Picker>
                     </View>
                 </View>

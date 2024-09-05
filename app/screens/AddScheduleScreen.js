@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput, Platform } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
+import { ApiContext } from '../../server/Api';
 
 function AddScheduleScreen(props) {
-    const [name, setName] = useState('');
+    const context = useContext(ApiContext);
+    const [name, setName] = useState('Schedule Name');
     const [timer, setTimer] = useState(1);
     const [isPickerShow, setIsPickerShow] = useState(false);
     const [date, setDate] = useState(new Date(Date.now()));
-    const [selectedLanguage, setSelectedLanguage] = useState();
+    const [repeat, setRepeat] = useState('once');
 
     const showPicker = () => {
         setIsPickerShow(true);
@@ -66,12 +68,12 @@ function AddScheduleScreen(props) {
                     <Text style={styles.cardTitle}>Repeat</Text>
                     <View style={styles.picker}>
                         <Picker
-                            selectedValue={selectedLanguage}
+                            selectedValue={repeat}
                             onValueChange={(itemValue, itemIndex) =>
-                                setSelectedLanguage(itemValue)
+                                setRepeat(itemValue)
                             }>
-                            <Picker.Item label="Once" value="0" />
-                            <Picker.Item label="Daily" value="1" />
+                            <Picker.Item label="Once" value="once" />
+                            <Picker.Item label="Daily" value="daily" />
                         </Picker>
                     </View>
                 </View>
@@ -91,7 +93,13 @@ function AddScheduleScreen(props) {
                         />
                     </View>
                 </View>
-                <Pressable onPress={() => props.navigation.goBack()}>
+                <Pressable onPress={() => context.addSchedule(
+                    name,
+                    date.toLocaleTimeString('en-US', {hour12: false, hour: 'numeric', minute: 'numeric'}),
+                    repeat,
+                    timer,
+                    props
+                    )}>
                     <View style={styles.button}>
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Add</Text>
                     </View>

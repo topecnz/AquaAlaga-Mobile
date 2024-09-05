@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable, Switch } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView } from 'react-native-gesture-handler';
+import { ApiContext } from '../../server/Api';
 
 function ScheduleScreen(props) {
-    const [isEnabled, setIsEnabled] = useState(false)
+    const [isEnabled, setIsEnabled] = useState(false);
+    const context = useContext(ApiContext);
+    useEffect(() => {
+        console.log('test')
+        context.getSchedules()
+   }, []);
     return (
         <SafeAreaView style={styles.container}>
             <MainGradient/>
@@ -19,69 +26,94 @@ function ScheduleScreen(props) {
                 </Pressable>
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>My First Fish Tank</Text>
-                    <Pressable style={styles.cardBody} onPress={() => props.navigation.navigate('View Schedule', {time: "1970-01-01 08:00:00", timer: 2, repeat: "1", name: "tank sched"})}>
-                        <View style={{flexDirection: "column"}}>
-                            <View>
-                                <View>
-                                    <Text style={styles.recentText}>08:00 AM</Text>
+                    <ScrollView style={{marginBottom: 200}}>
+                        {context.schedules.sort((a, b) => a.time.localeCompare(b.time)).map(item => 
+                            <Pressable key={item.id} style={styles.cardBody} onPress={() => props.navigation.navigate('View Schedule', {time: "1970-01-01 "+item.time+":00", timer: item.timer, repeat: item.repeat, name: item.name})}>
+                                <View style={{flexDirection: "column"}}>
+                                    <View>
+                                        <View>
+                                            <Text style={styles.recentText}>{new Date("1970-01-01 "+item.time+":00").toLocaleTimeString('en-US', {hour12: true, hour: 'numeric', minute: 'numeric'})}</Text>
+                                        </View>
+                                        <View>
+                                            <Text style={styles.recentSubText}>{item.repeat}, {item.timer}s</Text>
+                                        </View>
+                                    </View>
+                                    <View style={{position: "absolute", right: 0}}>
+                                        <Switch
+                                            trackColor={{false: '#767577', true: '#00aaff'}}
+                                            thumbColor={item.is_enable ? '#fff' : '#f4f3f4'}
+                                            ios_backgroundColor="#3e3e3e"
+                                            onValueChange={() => setIsEnabled(!isEnabled)}
+                                            value={item.is_enable}
+                                        />
+                                    </View>
                                 </View>
+                            </Pressable>
+                        )}
+                        {/* <Pressable style={styles.cardBody} onPress={() => props.navigation.navigate('View Schedule', {time: "1970-01-01 08:00:00", timer: 2, repeat: "1", name: "tank sched"})}>
+                            <View style={{flexDirection: "column"}}>
                                 <View>
-                                    <Text style={styles.recentSubText}>Once, 2s</Text>
+                                    <View>
+                                        <Text style={styles.recentText}>08:00 AM</Text>
+                                    </View>
+                                    <View>
+                                        <Text style={styles.recentSubText}>Once, 2s</Text>
+                                    </View>
                                 </View>
-                            </View>
-                            <View style={{position: "absolute", right: 0}}>
-                                <Switch
-                                    trackColor={{false: '#767577', true: '#00aaff'}}
-                                    thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
-                                    ios_backgroundColor="#3e3e3e"
-                                    onValueChange={() => setIsEnabled(!isEnabled)}
-                                    value={isEnabled}
-                                />
-                            </View>
-                        </View>
-                    </Pressable>
-                    <Pressable style={styles.cardBody} onPress={() => props.navigation.navigate('View Schedule', {time: "1970-01-01 14:00:00", timer: 2, repeat: "1", name: "tank sched"})}>
-                        <View style={{flexDirection: "column"}}>
-                            <View>
-                                <View>
-                                    <Text style={styles.recentText}>02:00 PM</Text>
-                                </View>
-                                <View>
-                                    <Text style={styles.recentSubText}>Once, 2s</Text>
-                                </View>
-                            </View>
-                            <View style={{position: "absolute", right: 0}}>
-                                <Switch
-                                    trackColor={{false: '#767577', true: '#00aaff'}}
-                                    thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
-                                    ios_backgroundColor="#3e3e3e"
-                                    onValueChange={() => setIsEnabled(!isEnabled)}
-                                    value={isEnabled}
-                                />
-                            </View>
-                        </View>
-                    </Pressable>
-                    <Pressable style={styles.cardBody} onPress={() => props.navigation.navigate('View Schedule', {time: "1970-01-01 22:00:00", timer: 2, repeat: "1", name: "tank sched"})}>
-                        <View style={{flexDirection: "column"}}>
-                            <View>
-                                <View>
-                                    <Text style={styles.recentText}>10:00 PM</Text>
-                                </View>
-                                <View>
-                                    <Text style={styles.recentSubText}>Once, 2s</Text>
+                                <View style={{position: "absolute", right: 0}}>
+                                    <Switch
+                                        trackColor={{false: '#767577', true: '#00aaff'}}
+                                        thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
+                                        ios_backgroundColor="#3e3e3e"
+                                        onValueChange={() => setIsEnabled(!isEnabled)}
+                                        value={isEnabled}
+                                    />
                                 </View>
                             </View>
-                            <View style={{position: "absolute", right: 0}}>
-                                <Switch
-                                    trackColor={{false: '#767577', true: '#00aaff'}}
-                                    thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
-                                    ios_backgroundColor="#3e3e3e"
-                                    onValueChange={() => setIsEnabled(!isEnabled)}
-                                    value={isEnabled}
-                                />
+                        </Pressable>
+                        <Pressable style={styles.cardBody} onPress={() => props.navigation.navigate('View Schedule', {time: "1970-01-01 14:00:00", timer: 2, repeat: "1", name: "tank sched"})}>
+                            <View style={{flexDirection: "column"}}>
+                                <View>
+                                    <View>
+                                        <Text style={styles.recentText}>02:00 PM</Text>
+                                    </View>
+                                    <View>
+                                        <Text style={styles.recentSubText}>Once, 2s</Text>
+                                    </View>
+                                </View>
+                                <View style={{position: "absolute", right: 0}}>
+                                    <Switch
+                                        trackColor={{false: '#767577', true: '#00aaff'}}
+                                        thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
+                                        ios_backgroundColor="#3e3e3e"
+                                        onValueChange={() => setIsEnabled(!isEnabled)}
+                                        value={isEnabled}
+                                    />
+                                </View>
                             </View>
-                        </View>
-                    </Pressable>
+                        </Pressable>
+                        <Pressable style={styles.cardBody} onPress={() => props.navigation.navigate('View Schedule', {time: "1970-01-01 22:00:00", timer: 2, repeat: "1", name: "tank sched"})}>
+                            <View style={{flexDirection: "column"}}>
+                                <View>
+                                    <View>
+                                        <Text style={styles.recentText}>10:00 PM</Text>
+                                    </View>
+                                    <View>
+                                        <Text style={styles.recentSubText}>Once, 2s</Text>
+                                    </View>
+                                </View>
+                                <View style={{position: "absolute", right: 0}}>
+                                    <Switch
+                                        trackColor={{false: '#767577', true: '#00aaff'}}
+                                        thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
+                                        ios_backgroundColor="#3e3e3e"
+                                        onValueChange={() => setIsEnabled(!isEnabled)}
+                                        value={isEnabled}
+                                    />
+                                </View>
+                            </View>
+                        </Pressable> */}
+                    </ScrollView>
                 </View>
             </View>
         </SafeAreaView>

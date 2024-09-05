@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ApiContext } from '../../server/Api';
 
 function ProfileScreen(props) {
-    const [username, setUsername] = useState('');
+    const context = useContext(ApiContext);
+    const [username, setUsername] = useState(context.account.username);
     const [password, setPassword] = useState('');
     return (
         <SafeAreaView style={styles.container}>
@@ -22,7 +24,7 @@ function ProfileScreen(props) {
                                 onChangeText={setUsername}
                                 value={username}
                                 placeholder='Username'
-                            /> 
+                            />
                         </View>
                         <View>
                             <TextInput
@@ -38,10 +40,7 @@ function ProfileScreen(props) {
                                 <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Update</Text>
                             </View>
                         </Pressable>
-                        <Pressable onPress={() => props.navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Landing' }]
-                            })}>
+                        <Pressable onPress={() => context.logout(props)}>
                             <View style={styles.button}>
                                 <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Logout</Text>
                             </View>
