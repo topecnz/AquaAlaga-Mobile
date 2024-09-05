@@ -25,9 +25,9 @@ class ApiProvider extends Component {
         this.data = []
     }
 
-    getAccount = async () => {
-        instance
-    }
+    // getAccount = async () => {
+    //     instance
+    // }
 
     getSchedules = async () => {
         instance.get('schedule').then((response) => {

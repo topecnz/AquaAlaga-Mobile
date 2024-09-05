@@ -1,8 +1,20 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable } from 'react-native';
 import LandingGradient from '../components/LandingGradient';
+import { ApiContext } from '../../server/Api';
 
 function LandingScreen(props) {
+    const context = useContext(ApiContext);
+    // useEffect(() => {
+    //   console.log('test...' + context.isLoggedOn)
+    //   if (context.isLoggedOn) {
+    //     props.navigation.reset({
+    //         index: 0,
+    //         routes: [{ name: 'BottomTab' }]
+    //     })
+    //   } 
+    // }, []);
+    
     return (
       <View style={styles.container}>
         <LandingGradient/>

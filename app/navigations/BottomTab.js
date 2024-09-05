@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../screens/HomeScreen';
@@ -10,10 +10,12 @@ import { Ionicons } from '@expo/vector-icons';
 import ScheduleScreen from '../screens/ScheduleScreen';
 import ViewScheduleScreen from '../screens/ViewScheduleScreen';
 import AddScheduleScreen from '../screens/AddScheduleScreen';
+import { ApiContext } from '../../server/Api';
 
 const Tab = createBottomTabNavigator();
 
 function BottomTab(props) {
+    const context = useContext(ApiContext);
     return (
         <Tab.Navigator initialRouteName='Home' screenOptions={{
             headerShown: false,
@@ -49,6 +51,10 @@ function BottomTab(props) {
                 tabBarIcon: ({color, size}) => (
                     <Ionicons name='time' color={color} size={32}/>
                 )
+            }} listeners={{
+                tabPress: e => {
+                    // context.getSchedules();
+                }
             }}/>
             <Tab.Screen name="Notification" component={NotificationScreen} options={{
                 tabBarLabel: 'Notification',
@@ -68,13 +74,21 @@ function BottomTab(props) {
 
 export default BottomTab;
 
-
 const Stack = createStackNavigator();
 
-function ScheduleNavigator(props) {
+function ScheduleNavigator(props) {  
+    const context = useContext(ApiContext);  
     return (
-        <Stack.Navigator initialRouteName='Schedules' screenOptions={{headerShown: false}}>
-            <Stack.Screen name="Schedules" component={ScheduleScreen} />
+        <Stack.Navigator initialRouteName='Schedules' screenOptions={{headerShown: false}} screenListeners={{
+            state: (e) => {
+              // Do something with the state
+              if (e.data.state.routes[0].name == 'Schedules') {
+                context.getSchedules()
+              }
+            },
+          }}
+        >
+            <Stack.Screen name="Schedules" component={ScheduleScreen}/>
             <Stack.Screen name="View Schedule" component={ViewScheduleScreen} />
             <Stack.Screen name="Add Schedule" component={AddScheduleScreen} />
         </Stack.Navigator>

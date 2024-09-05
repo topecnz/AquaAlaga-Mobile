@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput } from 'react-native';
 import LandingGradient from '../components/LandingGradient';
+import { ApiContext } from '../../server/Api';
 
 function LoginScreen(props) {
+    const context = useContext(ApiContext);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -35,11 +37,7 @@ function LoginScreen(props) {
                 />  
             </View>
             <View>
-                {/* Temporary access to home page */}
-                <Pressable onPress={() => props.navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'BottomTab' }]
-                })}>
+                <Pressable onPress={() => context.login(username, password, props)}>
                     <View style={styles.button}>
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Login</Text>
                     </View>
