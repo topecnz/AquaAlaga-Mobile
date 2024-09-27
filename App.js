@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, Image, Button, Alert, Pressable } from 'react-n
 import { NavigationContainer } from '@react-navigation/native';
 import { registerRootComponent } from 'expo';
 import ApiProvider from './server/Api';
-
 import StackNav from './app/navigations/StackNav';
 
 export default function App() {
