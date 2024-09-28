@@ -28,7 +28,13 @@ class ApiProvider extends Component {
     // getAccount = async () => {
     //     instance
     // }
+    getNotifications = async () => {
+        instance.get('notification').then((response) => {
+            this.updateState(this, {notifications: response.data})
+        })
+    }
 
+    
     getSchedules = async () => {
         instance.get('schedule').then((response) => {
             this.updateState(this, {schedules: response.data})
@@ -120,6 +126,9 @@ class ApiProvider extends Component {
             </ApiContext.Provider>
         )
     }
+
+    
+
 }
 
 export default ApiProvider;

@@ -42,7 +42,12 @@ function HomeScreen(props) {
                                 <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Hold to Feed</Text>
                             </View>
                         </Pressable>
-                        <Pressable onPress={() => Alert.alert("Pressed")}>
+                        <Pressable onPress={() => props.navigation.navigate('BottomTab', {
+                            screen: 'Schedule Navigator',
+                            params: {
+                                screen: 'View Schedule'
+                              }
+                        })}>
                             <View style={styles.button}>
                                 <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>View Schedules</Text>
                             </View>
