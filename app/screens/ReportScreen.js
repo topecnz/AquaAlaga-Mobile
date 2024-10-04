@@ -1,25 +1,19 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import RNPickerSelect from 'react-native-picker-select';
-import { format, subDays } from 'date-fns';
 import { ApiContext } from '../../server/Api';
+import { format, subDays } from 'date-fns';
+import RNPickerSelect from 'react-native-picker-select';
 
 function ReportScreen(props) {
     const context = useContext(ApiContext);
     const [selectedRange, setSelectedRange] = useState('All');
-    const [reports, setReports] = useState([]);
-
     
     useEffect(() => {
-        const fetchReports = async () => {
-            await context.getReports(); 
-            setReports(context.reports || []); 
-        };
-
-        fetchReports();
-    }, [context]);
+        console.log('Fetching reports...');
+        context.getReports();
+    }, []);
 
     // Function to filter reports by date range
     function filterReportsByDateRange(reports, range) {
@@ -54,7 +48,7 @@ function ReportScreen(props) {
         return filteredReports;
     }
 
-    const filteredReports = filterReportsByDateRange(reports, selectedRange);
+    const filteredReports = filterReportsByDateRange(context.reports || [], selectedRange);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -76,13 +70,17 @@ function ReportScreen(props) {
                 placeholder={{ label: 'Select Date Range', value: 'All' }}
             />
 
-            <ScrollView style={styles.body}>
+            <ScrollView style={{ marginBottom: 200 }}>
                 {filteredReports.length > 0 ? (
-                    filteredReports.map((report, index) => (
-                        <View key={index} style={styles.card}>
-                            <Text style={styles.cardTitle}>{format(new Date(report.created_at), 'PPpp')}</Text>
-                            <Text style={styles.cardText}>Sensor: {report.sensor}</Text>
-                            <Text style={styles.cardText}>Data: {report.data}</Text>
+                    filteredReports.sort((a, b) => a.created_at.localeCompare(b.created_at)).map((report, index) => (
+                        <View key={index} style={styles.cardBody}>
+                            <View style={styles.cardContent}>
+                                <Text style={styles.recentText}>
+                                    {format(new Date(report.created_at), 'MMMM d, yyyy, h:mm a')}
+                                </Text>
+                                <Text style={styles.recentSubText}>Sensor: {report.sensor}</Text>
+                                <Text style={styles.recentSubText}>Data: {report.data}</Text>
+                            </View>
                         </View>
                     ))
                 ) : (
@@ -104,27 +102,23 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         paddingTop: 40,
     },
-    body: {
-        marginVertical: 60,
+    cardBody: {
+        borderWidth: 1,
+        borderRadius: 10,
+        marginVertical: 5,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
     },
-    card: {
-        backgroundColor: '#f9f9f9',
-        borderRadius: 8,
-        padding: 16,
-        marginVertical: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 1,
-        elevation: 2, 
-        
+    cardContent: {
+        flexDirection: 'column',
     },
-    cardTitle: {
-        fontSize: 18,
+    recentText: {
+        fontSize: 24,
         fontWeight: 'bold',
     },
-    cardText: {
+    recentSubText: {
         fontSize: 16,
+        color: 'grey',
     },
     noReportsText: {
         fontSize: 16,
@@ -132,31 +126,20 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginVertical: 20,
     },
+    scrollView: {
+        marginBottom: 200,
+    },
 });
 
 const pickerSelectStyles = {
-    inputIOS: {
-        fontSize: 16,
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderWidth: 1,
-        borderColor: 'gray',
-        borderRadius: 4,
-        color: 'black',
-        paddingRight: 30,
-        marginVertical: 10,
-    },
-    inputAndroid: {
-        fontSize: 16,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderWidth: 0.5,
-        borderColor: 'gray',
-        borderRadius: 8,
-        color: 'black',
-        paddingRight: 30,
-        marginVertical: 10,
-    },
+    fontSize: 18,
+    fontWeight: 'bold',
+    padding: 12,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 4,
+    color: 'black',
+    marginVertical: 10,
 };
 
 export default ReportScreen;
