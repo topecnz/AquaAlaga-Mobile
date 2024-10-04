@@ -70,7 +70,7 @@ function ReportScreen(props) {
                 placeholder={{ label: 'Select Date Range', value: 'All' }}
             />
 
-            <ScrollView style={{ marginBottom: 200 }}>
+            <ScrollView style={styles.body}>
                 {filteredReports.length > 0 ? (
                     filteredReports.sort((a, b) => a.created_at.localeCompare(b.created_at)).map((report, index) => (
                         <View key={index} style={styles.cardBody}>
@@ -103,11 +103,15 @@ const styles = StyleSheet.create({
         paddingTop: 40,
     },
     cardBody: {
-        borderWidth: 1,
-        borderRadius: 10,
-        marginVertical: 5,
-        paddingVertical: 10,
-        paddingHorizontal: 15,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        padding: 16,
+        marginVertical: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 1,
+        elevation: 2,
     },
     cardContent: {
         flexDirection: 'column',
@@ -129,17 +133,23 @@ const styles = StyleSheet.create({
     scrollView: {
         marginBottom: 200,
     },
+    body: {
+        marginVertical: 5,
+    },
 });
 
 const pickerSelectStyles = {
-    fontSize: 18,
-    fontWeight: 'bold',
-    padding: 12,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 4,
-    color: 'black',
-    marginVertical: 10,
+    inputAndroid: {
+        fontSize: 16,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        borderWidth: 0.5,
+        borderColor: 'gray',
+        borderRadius: 8,
+        color: 'black',
+        paddingRight: 30,
+        marginVertical: 10,
+    },
 };
 
 export default ReportScreen;
