@@ -29,9 +29,17 @@ class ApiProvider extends Component {
     //     instance
     // }
 
+
+
     getSchedules = async () => {
         instance.get('schedule').then((response) => {
             this.updateState(this, {schedules: response.data})
+        })
+    }
+
+    getReports = async () => {
+        instance.get('report').then((response) => {
+            this.updateState(this, {reports: response.data})
         })
     }
 
@@ -114,7 +122,9 @@ class ApiProvider extends Component {
                 logout: this.logout,
                 isLoggedOn: this.state.isLoggedOn,
                 account: this.state.account,
-                addSchedule: this.addSchedule
+                addSchedule: this.addSchedule,
+                reports: this.state.reports,
+                getReports: this.getReports
             }}>
                 {this.props.children}
             </ApiContext.Provider>
