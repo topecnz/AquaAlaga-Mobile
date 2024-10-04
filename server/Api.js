@@ -6,8 +6,8 @@ import { Alert } from 'react-native';
 export const ApiContext = createContext();
 
 const instance = axios.create({
-    baseURL: process.env.EXPO_PUBLIC_BASE_URL,
-    timeout: 1000,
+    baseURL: 'http://192.168.148.20:8000/',
+    timeout: 5000,
 });
 
 class ApiProvider extends Component {
@@ -63,21 +63,35 @@ class ApiProvider extends Component {
     }
 
     login = async (username, password, props) => {
-        instance.get('login', { params: { username: username, password: password } }).then((response) => {
-            this.setState({isLoggedOn: response.data.access, account: response.data.data}, () => {
-                console.log('Checking.... '+ this.state.isLoggedOn + ' ' +  this.state.account.id)
-                if (this.state.isLoggedOn) {
-                    props.navigation.reset({
-                        index: 0,
-                        routes: [{ name: 'BottomTab' }]
-                    })
-                }
-                else {
-                    Alert.alert('Invalid credentials.')
-                }
-            });
+        instance.get('login', { params: { username: username, password: password } })
+        .then((response) => {
+            console.log('API Response:', response);
+    
+            if (response.data && response.data.access && response.data.data) {
+                this.setState({ isLoggedOn: response.data.access, account: response.data.data }, () => {
+                    console.log('Logged-in user:', this.state.account);
+    
+                    if (this.state.account && this.state.account.username) {
+                        console.log('User ID:', this.state.account.username);
+    
+                        props.navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'BottomTab' }]
+                        });
+                    } else {
+                        Alert.alert('Login successful.');
+                    }
+                });
+            } else {
+                Alert.alert('Invalid credentials.');
+            }
         })
-    }
+        .catch((error) => {
+            console.error('Login error:', error);
+            Alert.alert('Login failed.');
+        });
+    };
+    
 
     logout = async (props) => {
         this.setState({isLoggedOn: false}, () => {
