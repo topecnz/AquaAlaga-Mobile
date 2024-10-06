@@ -27,6 +27,14 @@ function BottomTab(props) {
             tabBarStyle: {
                 height: 70,
             }
+            }}
+            screenListeners={{
+                state: (e) => {
+                    // Do something with the state
+                    if (e.data.state.index == 1) {
+                        context.getReports()
+                    }
+                },
             }}>
             <Tab.Screen name="Home" component={HomeScreen} options={{
                 tabBarLabel: 'Home',
