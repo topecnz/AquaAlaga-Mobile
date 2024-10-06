@@ -6,7 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { ApiContext } from '../../server/Api';
 
 function ScheduleScreen(props) {
-    const [isEnabled, setIsEnabled] = useState(false);
+    // const [isEnabled, setIsEnabled] = useState(false);
     const context = useContext(ApiContext);
     useEffect(() => {
         console.log('test')
@@ -27,15 +27,15 @@ function ScheduleScreen(props) {
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>My First Fish Tank</Text>
                     <ScrollView style={{marginBottom: 200}}>
-                        {context.schedules.sort((a, b) => a.time.localeCompare(b.time)).map(item => 
-                            <Pressable key={item.id} style={styles.cardBody} onPress={() => props.navigation.navigate('View Schedule', {time: "1970-01-01 "+item.time+":00", timer: item.timer, repeat: item.repeat, name: item.name})}>
+                        {context.schedules.sort((a, b) => a.time.localeCompare(b.time)).map((item, index) => 
+                            <Pressable key={item.id} style={styles.cardBody} onPress={() => props.navigation.navigate('View Schedule', {time: "1970-01-01 "+item.time+":00", timer: item.timer, repeat: item.repeat, name: item.name, id: item.id})}>
                                 <View style={{flexDirection: "column"}}>
                                     <View>
                                         <View>
                                             <Text style={styles.recentText}>{new Date("1970-01-01 "+item.time+":00").toLocaleTimeString('en-US', {hour12: true, hour: 'numeric', minute: 'numeric'})}</Text>
                                         </View>
                                         <View>
-                                            <Text style={styles.recentSubText}>{item.repeat}, {item.timer}s</Text>
+                                            <Text style={styles.recentSubText}>{item.repeat}, {item.timer}s {index}</Text>
                                         </View>
                                     </View>
                                     <View style={{position: "absolute", right: 0}}>
@@ -43,7 +43,9 @@ function ScheduleScreen(props) {
                                             trackColor={{false: '#767577', true: '#00aaff'}}
                                             thumbColor={item.is_enable ? '#fff' : '#f4f3f4'}
                                             ios_backgroundColor="#3e3e3e"
-                                            onValueChange={() => setIsEnabled(!isEnabled)}
+                                            onValueChange={() => {
+                                                context.toggleSchedule(item.id, props)
+                                            }}
                                             value={item.is_enable}
                                         />
                                     </View>

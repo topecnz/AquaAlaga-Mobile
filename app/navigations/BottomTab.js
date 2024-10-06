@@ -31,8 +31,15 @@ function BottomTab(props) {
             screenListeners={{
                 state: (e) => {
                     // Do something with the state
+
+                    // Report
                     if (e.data.state.index == 1) {
                         context.getReports()
+                    }
+
+                    //Schedule
+                    if (e.data.state.index == 3) {
+                        context.getSchedules()
                     }
                 },
             }}>
@@ -87,14 +94,7 @@ const Stack = createStackNavigator();
 function ScheduleNavigator(props) {  
     const context = useContext(ApiContext);  
     return (
-        <Stack.Navigator initialRouteName='Schedules' screenOptions={{headerShown: false}} screenListeners={{
-            state: (e) => {
-              // Do something with the state
-              if (e.data.state.routes[0].name == 'Schedules') {
-                context.getSchedules()
-              }
-            },
-          }}
+        <Stack.Navigator initialRouteName='Schedules' screenOptions={{headerShown: false}} screenListeners={{}}
         >
             <Stack.Screen name="Schedules" component={ScheduleScreen}/>
             <Stack.Screen name="View Schedule" component={ViewScheduleScreen} />

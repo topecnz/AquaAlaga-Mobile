@@ -60,14 +60,73 @@ class ApiProvider extends Component {
                 Alert.alert('Schedule Added to Database!');
                 props.navigation.goBack();
             }
+            else if (response.data.code == 409) {
+                Alert.alert(response.data.message);
+            }
             else {
                 Alert.alert('Something went wrong!');
             }
         })
     }
 
-    updateScheduleSwitch = async () => {
+    updateSchedule = async (id, name, time, repeat, timer, props) => {
+        instance.patch(`schedule?_id=${id}`, {
+            name: name,
+            time: time,
+            repeat: repeat,
+            timer: timer,
+            is_enable: true
+        }, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            if (response.data.code == 200) {
+                Alert.alert('Schedule Updated to Database!');
+                props.navigation.goBack();
+            }
+            else if (response.data.code == 409) {
+                Alert.alert(response.data.message);
+            }
+            else {
+                Alert.alert('Something went wrong!');
+            }
+        })
+    }
 
+    deleteSchedule = async (id, props) => {
+        instance.delete(`schedule?_id=${id}`, {}, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            if (response.data.code == 200) {
+                Alert.alert('Schedule Deleted to Database!');
+                props.navigation.goBack();
+            }
+            else {
+                Alert.alert('Something went wrong!');
+            }
+        })
+    }
+
+    toggleSchedule = async (id, props) => {
+        instance.put(`schedule?_id=${id}`, {}, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            if (response.data.code == 200) {
+                
+            }
+            else {
+                Alert.alert('Something went wrong!');
+            }
+            this.getSchedules();
+        })
     }
 
     login = async (username, password, props) => {
@@ -123,6 +182,9 @@ class ApiProvider extends Component {
                 isLoggedOn: this.state.isLoggedOn,
                 account: this.state.account,
                 addSchedule: this.addSchedule,
+                updateSchedule: this.updateSchedule,
+                deleteSchedule: this.deleteSchedule,
+                toggleSchedule: this.toggleSchedule,
                 reports: this.state.reports,
                 getReports: this.getReports
             }}>

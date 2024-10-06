@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput, Platform } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
+import { ApiContext } from '../../server/Api';
 
 function ViewScheduleScreen(props) {
+    const context = useContext(ApiContext);
     const [name, setName] = useState(props.route.params.name);
     const [timer, setTimer] = useState(props.route.params.timer);
     const [isPickerShow, setIsPickerShow] = useState(false);
     const [date, setDate] = useState(new Date(props.route.params.time));
-    const [selectedLanguage, setSelectedLanguage] = useState(props.route.params.repeat);
+    const [repeat, setRepeat] = useState(props.route.params.repeat);
 
     const showPicker = () => {
         setIsPickerShow(true);
@@ -65,9 +67,9 @@ function ViewScheduleScreen(props) {
                     <Text style={styles.cardTitle}>Repeat</Text>
                     <View style={styles.picker}>
                         <Picker
-                            selectedValue={selectedLanguage}
+                            selectedValue={repeat}
                             onValueChange={(itemValue, itemIndex) =>
-                                setSelectedLanguage(itemValue)
+                                setRepeat(itemValue)
                             }>
                             <Picker.Item label="Once" value="once" />
                             <Picker.Item label="Daily" value="daily" />
@@ -90,12 +92,22 @@ function ViewScheduleScreen(props) {
                         />
                     </View>
                 </View>
-                <Pressable onPress={() => props.navigation.goBack()}>
+                <Pressable onPress={() => context.updateSchedule(
+                    props.route.params.id,
+                    name,
+                    date.toLocaleTimeString('en-US', {hour12: false, hour: 'numeric', minute: 'numeric'}),
+                    repeat,
+                    timer,
+                    props
+                )}>
                     <View style={styles.button}>
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Update</Text>
                     </View>
                 </Pressable>
-                <Pressable onPress={() => props.navigation.goBack()}>
+                <Pressable onPress={() => context.deleteSchedule(
+                    props.route.params.id,
+                    props
+                )}>
                     <View style={styles.button}>
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Delete</Text>
                     </View>
