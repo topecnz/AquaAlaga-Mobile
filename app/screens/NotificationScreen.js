@@ -8,7 +8,8 @@ import { ApiContext } from '../../server/Api';
 function NotificationScreen(props) {
   const context = useContext(ApiContext);
   
-  useEffect(() => {
+    useEffect(() => {
+    console.log('Fetching notifications...')
     context.getNotifications(); 
 }, []);
 
