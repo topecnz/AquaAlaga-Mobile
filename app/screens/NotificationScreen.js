@@ -20,7 +20,8 @@ function NotificationScreen(props) {
     return `${formattedDate} ${formattedTime}`;
   };
 
-
+    const sortedNotifications = context.notifications.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
   return (
     <SafeAreaView style={styles.container}>
       <MainGradient />
@@ -32,17 +33,15 @@ function NotificationScreen(props) {
           <Text style={styles.cardTitle}>My First Fish Tank</Text>
           <Text style={styles.markText}>Mark all as read</Text>
           
-          <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+          <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
             <View style={styles.cardBody}>
             
-              {context.notifications.map((item, index) => (
-                <View key={index} style={styles.notificationCard}>
-                 
-                  <Text style={styles.recentText}>{item.message}</Text>
-                 
-                  <Text style={styles.timestampText}>{formatDateTime(item.created_at)}</Text>
-                </View>
-              ))}
+            {context.notifications.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((item, index) => (
+            <View key={index} style={styles.notificationCard}>
+            <Text style={styles.recentText}>{item.message}</Text>
+            <Text style={styles.timestampText}>{formatDateTime(item.created_at)}</Text>
+            </View>
+            ))}
             </View>
           </ScrollView>
         </View>
@@ -67,7 +66,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     },
   card: {
-        marginBottom: 32
+        marginBottom: 30,
     },
   cardTitle: {
     fontSize: 28,
