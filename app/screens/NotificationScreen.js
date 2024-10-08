@@ -3,32 +3,15 @@ import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useContext, useState, useEffect } from 'react';
 import { ApiContext } from '../../server/Api';
-import axios from 'axios';
 
 
 function NotificationScreen(props) {
-  //const context = useContext(ApiContext);
-  const [notifications, setNotifications] = useState([]);
-  const instance = axios.create({
-        baseURL: 'http://192.168.1.4:8000/'
-
-    });
-
-  const getNotifications = async () => {
-      try {
-          const response = await instance.get('notification');
-          setNotifications(response.data); 
-      } catch (error) {
-          console.error("Error fetching notifications:", error);
-      }
-  };
-
-  useEffect(() => {
-      getNotifications(); 
-  }, []);
-
+  const context = useContext(ApiContext);
   
-    
+  useEffect(() => {
+    context.getNotifications(); 
+}, []);
+
   const formatDateTime = (timestamp) => {
     const date = new Date(timestamp);
     const formattedDate = date.toLocaleDateString(); 
@@ -41,17 +24,17 @@ function NotificationScreen(props) {
     <SafeAreaView style={styles.container}>
       <MainGradient />
       <View>
-        <Text style={styles.headerText}>Notifications</Text>
+        <Text style={styles.headerText}>{props.route.name}s</Text>
       </View>
       <View style={styles.body}>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>My First Fish Tank</Text>
           <Text style={styles.markText}>Mark all as read</Text>
           
-          
           <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
             <View style={styles.cardBody}>
-              {notifications.map((item, index) => (
+            
+              {context.notifications.map((item, index) => (
                 <View key={index} style={styles.notificationCard}>
                  
                   <Text style={styles.recentText}>{item.message}</Text>
