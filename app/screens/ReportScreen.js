@@ -69,24 +69,26 @@ function ReportScreen(props) {
                 style={pickerSelectStyles}
                 placeholder={{ label: 'Select Date Range', value: 'All' }}
             />
+            <ScrollView style={{ marginBottom: 50 }}>
+                 {filteredReports.length > 0 ? (
+                   filteredReports.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((report, index) => (
+                <View key={index} style={styles.cardBody}>
+                    <View style={styles.cardContent}>
+                        <Text style={styles.recentText}>
+                            {format(new Date(report.created_at), 'MMMM d, yyyy, h:mm a')}
+                        </Text>
+                        <Text style={styles.recentSubText}>Sensor: {report.sensor}</Text>
+                        <Text style={styles.recentSubText}>Data: {report.data}</Text>
+                    </View>
+                </View>
+            ))
+    ) : (
+        <Text style={styles.noReportsText}>No reports available for this date range.</Text>
+    )}
+</ScrollView>
 
-            <ScrollView style={styles.body}>
-                {filteredReports.length > 0 ? (
-                    filteredReports.sort((a, b) => a.created_at.localeCompare(b.created_at)).map((report, index) => (
-                        <View key={index} style={styles.cardBody}>
-                            <View style={styles.cardContent}>
-                                <Text style={styles.recentText}>
-                                    {format(new Date(report.created_at), 'MMMM d, yyyy, h:mm a')}
-                                </Text>
-                                <Text style={styles.recentSubText}>Sensor: {report.sensor}</Text>
-                                <Text style={styles.recentSubText}>Data: {report.data}</Text>
-                            </View>
-                        </View>
-                    ))
-                ) : (
-                    <Text style={styles.noReportsText}>No reports available for this date range.</Text>
-                )}
-            </ScrollView>
+               
+            
         </SafeAreaView>
     );
 }
@@ -103,15 +105,11 @@ const styles = StyleSheet.create({
         paddingTop: 40,
     },
     cardBody: {
-        backgroundColor: '#f9f9f9',
-        borderRadius: 8,
-        padding: 16,
-        marginVertical: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 1,
-        elevation: 2,
+        borderWidth: 1,
+        borderRadius: 10,
+        marginVertical: 5,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
     },
     cardContent: {
         flexDirection: 'column',
@@ -129,12 +127,6 @@ const styles = StyleSheet.create({
         color: 'gray',
         textAlign: 'center',
         marginVertical: 20,
-    },
-    scrollView: {
-        marginBottom: 200,
-    },
-    body: {
-        marginVertical: 5,
     },
 });
 
