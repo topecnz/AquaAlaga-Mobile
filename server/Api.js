@@ -29,6 +29,11 @@ class ApiProvider extends Component {
     //     instance
     // }
 
+    getNotifications = async () => {
+        instance.get('notification').then((response) => {
+            this.updateState(this, {notifications: response.data})
+        })
+    }
 
 
     getSchedules = async () => {
@@ -186,7 +191,9 @@ class ApiProvider extends Component {
                 deleteSchedule: this.deleteSchedule,
                 toggleSchedule: this.toggleSchedule,
                 reports: this.state.reports,
-                getReports: this.getReports
+                getReports: this.getReports,
+                getNotifications: this.getNotifications,
+                notifications: this.state.notifications
             }}>
                 {this.props.children}
             </ApiContext.Provider>
