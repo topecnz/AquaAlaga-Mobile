@@ -1,127 +1,141 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useContext, useState, useEffect } from 'react';
 import { ApiContext } from '../../server/Api';
-
+import { format, subDays } from 'date-fns';
+import RNPickerSelect from 'react-native-picker-select';
 
 function NotificationScreen(props) {
-  const context = useContext(ApiContext);
-  
-    useEffect(() => {
-    console.log('Fetching notifications...')
-    context.getNotifications(); 
-}, []);
-
-  const formatDateTime = (timestamp) => {
-    const date = new Date(timestamp);
-    const formattedDate = date.toLocaleDateString(); 
-    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); 
-    return `${formattedDate} ${formattedTime}`;
-  };
-
-    const sortedNotifications = context.notifications.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const context = useContext(ApiContext);
+    const [selectedRange, setSelectedRange] = useState('All');
     
-  return (
-    <SafeAreaView style={styles.container}>
-      <MainGradient />
-      <View>
-        <Text style={styles.headerText}>{props.route.name}s</Text>
-      </View>
-      <View style={styles.body}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>My First Fish Tank</Text>
-          <Text style={styles.markText}>Mark all as read</Text>
-          
-          <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-            <View style={styles.cardBody}>
-            
-            {context.notifications.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((item, index) => (
-            <View key={index} style={styles.notificationCard}>
-            <Text style={styles.recentText}>{item.message}</Text>
-            <Text style={styles.timestampText}>{formatDateTime(item.created_at)}</Text>
+    useEffect(() => {
+        console.log('Fetching notifications...');
+        context.getNotifications();
+    }, []);
+
+    // Function to filter notifications by date range
+    function filterNotificationsByDateRange(notifications, range) {
+        const now = new Date();
+        let filteredNotifications = [];
+
+        switch (range) {
+            case 'Today':
+                filteredNotifications = notifications.filter(notification =>
+                    new Date(notification.created_at).toDateString() === now.toDateString()
+                );
+                break;
+            case 'Yesterday':
+                filteredNotifications = notifications.filter(notification =>
+                    new Date(notification.created_at).toDateString() === subDays(now, 1).toDateString()
+                );
+                break;
+            case '1 Week Ago':
+                filteredNotifications = notifications.filter(notification =>
+                    new Date(notification.created_at) >= subDays(now, 7)
+                );
+                break;
+            case '1 Month Ago':
+                filteredNotifications = notifications.filter(notification =>
+                    new Date(notification.created_at) >= subDays(now, 30)
+                );
+                break;
+            default:
+                filteredNotifications = notifications; 
+        }
+
+        return filteredNotifications;
+    }
+
+    const filteredNotifications = filterNotificationsByDateRange(context.notifications || [], selectedRange);
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <MainGradient />
+            <View>
+                <Text style={styles.headerText}>{props.route.name}s</Text>
             </View>
-            ))}
-            </View>
-          </ScrollView>
-        </View>
-      </View>
-    </SafeAreaView>
-  );
+
+            <RNPickerSelect
+                onValueChange={(value) => setSelectedRange(value)}
+                items={[
+                    { label: 'All', value: 'All' },
+                    { label: 'Today', value: 'Today' },
+                    { label: 'Yesterday', value: 'Yesterday' },
+                    { label: '1 Week Ago', value: '1 Week Ago' },
+                    { label: '1 Month Ago', value: '1 Month Ago' },
+                ]}
+                style={pickerSelectStyles}
+                placeholder={{ label: 'Select Date Range', value: 'All' }}
+            />
+
+            <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+                {filteredNotifications.length > 0 ? (
+                    filteredNotifications.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((notification, index) => (
+                        <View key={index} style={styles.notificationCard}>
+                            <Text style={styles.recentText}>{notification.message}</Text>
+                            <Text style={styles.timestampText}>
+                                {format(new Date(notification.created_at), 'MMMM d, yyyy, h:mm a')}
+                            </Text>
+                        </View>
+                    ))
+                ) : (
+                    <Text style={styles.noNotificationsText}>No notifications available for this date range.</Text>
+                )}
+            </ScrollView>
+        </SafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 36,
-  },
-  headerText: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    paddingTop: 40,
-  },
-  body: {
-    flex: 1,
-    marginTop: 20,
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        paddingHorizontal: 36,
     },
-  card: {
-        marginBottom: 30,
+    headerText: {
+        fontSize: 40,
+        fontWeight: 'bold',
+        paddingTop: 40,
     },
-  cardTitle: {
-    fontSize: 28,
-    fontWeight: "bold"
-},
-recentText: {
-    fontSize: 20,
-    fontWeight: "bold"
+    notificationCard: {
+        backgroundColor: '#fff',
+        padding: 15,
+        marginBottom: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'black',
     },
-markText: {
-    fontSize: 14,
-    color: '#007bff',
-    marginBottom: 20,
+    recentText: {
+        fontSize: 20,
+        fontWeight: 'bold',
     },
-timestampText: {
-    fontSize: 16,
-    color: "grey"
+    timestampText: {
+        fontSize: 14,
+        color: 'grey',
+        marginTop: 5,
     },
- 
-  notificationCard: {
-    backgroundColor: '#fff',
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderRadius: 10,
-    marginVertical: 3,
-    paddingVertical: 10,
-    paddingHorizontal: 15
-  },
-  messageText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  timestampText: {
-    fontSize: 14,
-    color: 'grey',
-    marginTop: 5,
+    noNotificationsText: {
+        fontSize: 16,
+        color: 'gray',
+        textAlign: 'center',
+        marginVertical: 20,
     },
-    buttonMargin: {
-        marginVertical: 2
-    },
-    button: {
-      height: 50,
-      width: "auto",
-      backgroundColor: "#0E79B4",
-      justifyContent: "center",
-      alignItems: "center",
-      borderRadius: 10,
-    },
-  markText: {
-        textAlign: "right",
-        marginVertical: 5,
-        color: "#0E79B4"
-    }
 });
+
+const pickerSelectStyles = {
+    inputAndroid: {
+        fontSize: 16,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        borderWidth: 0.5,
+        borderColor: 'gray',
+        borderRadius: 8,
+        color: 'black',
+        paddingRight: 30,
+        marginVertical: 10,
+    },
+};
 
 export default NotificationScreen;
