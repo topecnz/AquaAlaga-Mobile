@@ -1,47 +1,137 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput, NativeModules, NativeEventEmitter, ActivityIndicator } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
 import { ApiContext } from '../../server/Api';
 import axios from 'axios';
 import WifiManager from "react-native-wifi-reborn";
+import TetheringManager from '@react-native-tethering/wifi';
+import BleManager from "react-native-ble-manager";
+import { Buffer } from 'buffer';
+
+const BleManagerModule = NativeModules.BleManager;
+const BleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
 function LinkDeviceScreen(props) {
     const context = useContext(ApiContext);
     const [type, setType] = useState('Indoor');
-    const [isLinked, setISLinked] = useState(false);
-    const [deviceName, setDeviceName] = useState(props.route.params.item.SSID);
+    const [isLinkingDone, setIsLinkingDone] = useState(true);
+    const [isSet, setIsSet] = useState(false);
+    const [deviceName, setDeviceName] = useState(props.route.params.item.advertising.localName);
 
     useEffect(() => {
-        connectDevice();
+        if (!isSet) {
+            BleManagerEmitter.addListener('BleManagerDidUpdateValueForCharacteristic', ({value, peripheral, characteristic, service}) => {
+                // Display notification message
+    
+                console.log(value);
+                value = Buffer.from(value).toString('utf-8')
+                console.log(value);
+    
+                if (value == 'true') {
+                    disconnect();
+                } else if (value == 'existed') {
+                    Alert.alert('Device name already existed.')
+                } else if (value == 'failed_request') {
+                    Alert.alert('Linking device into the server failed. Please try again.')
+                } else {
+                    Alert.alert('Please try again.')
+                }
+
+                setIsLinkingDone(true);
+              });
+            console.log('Listener activated.');
+            setIsSet(true);
+        }
     })
 
-    const connectDevice = async () => {
-        WifiManager.getCurrentWifiSSID().then(
-            (ssid) => {
-                console.log(ssid);
-            },
+    const disconnect = async () => {
+        BleManagerEmitter.removeAllListeners('BleManagerDiscoverPeripheral');
+        BleManagerEmitter.removeAllListeners('BleManagerStopScan');
+        // BleManagerEmitter.removeAllListeners('BleManagerConnectPeripheral');
+        // BleManagerEmitter.removeAllListeners('BleManagerDisconnectPeripheral');
+        BleManagerEmitter.removeAllListeners('BleManagerDidUpdateValueForCharacteristic')
+        BleManager.disconnect(props.route.params.item.id).then(
             () => {
-                console.log('Error');
+                console.log('Disconnected.');
+                props.navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'BottomTabMain' }]
+                });
+                Alert.alert('Success!');
+            },
+            (e) => {
+                console.log(e);
             }
         )
-        // WifiManager.connectToSSID(item.SSID).then(
-        //     () => {
-        //         console.log('Connected!')
-        //     },
-        //     () => {
-        //         console.log('Connection Failed.')
-        //     }
-        // )
     }
 
-    const linkDevice = async () => {
-        axios.post('http://192.168.4.1/link', {
-            test: 'test'
-        }).then((response) => {
-            console.log(response.data);
-        });
+    const connectDevice = async () => {
+        setIsLinkingDone(false);
+
+        // Validate
+        if (deviceName.length > 16) {
+            Alert.alert('The device name maximum characters is 16.');
+            setIsLinkingDone(true);
+            return;
+        }
+
+        BleManager.retrieveServices(props.route.params.item.id).then(
+            (info) => {
+                BleManager.startNotification(info.id, info.services[2].uuid, info.characteristics[3].characteristic)
+                    .then(() => {
+                    // Display confirmation message
+                    console.log(`Subscribed to ${info.id} - ${info.services[2].uuid} - ${info.characteristics[3].characteristic}`);
+                    })
+                    .catch((err) => {
+                    // Update error message
+                        Alert.alert(err.message)
+                    });
+                data = {
+                    deviceName: deviceName,
+                    type: type,
+                }
+                
+                // Send device name
+                writeData(info, 'dn|'+ data.deviceName);    
+                // Send device type
+                writeData(info, 't|'+ data.type);    
+
+            }
+        )
+
+        const writeData = async (info, data) => {
+            BleManager.write(info.id, info.services[2].uuid, info.characteristics[3].characteristic, Buffer.from(data).toJSON().data)
+                .then(() => {
+                    console.log("Write success");
+                })
+                .catch((error) => {
+                    console.log("Write failed", error);
+                });
+        }
+
+        const readData = async (info) => {
+            let res = null;
+            BleManager.read(info.id, info.services[2].uuid, info.characteristics[3].characteristic)
+                .then((data) => {
+                    res = Buffer.from(data).toString();
+                    console.log("Read " + res);
+                    BleManager.disconnect(info.id).then(
+                        () => {
+                            console.log('Disconnected.');
+                        },
+                        (e) => {
+                            console.log(e);
+                        }
+                    )
+                })
+                .catch((error) => {
+                    console.log("Read failed", error);
+                });
+
+            return (res.length) ? true : false;
+        }
     }
 
     return (
@@ -76,11 +166,19 @@ function LinkDeviceScreen(props) {
                                 </Picker>
                             </View>
                         </View>
-                        <Pressable onPress={() => linkDevice()}>
-                            <View style={styles.button}>
-                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Link</Text>
-                            </View>
-                        </Pressable>
+                        { (isLinkingDone) ? (
+                                <Pressable onPress={() => connectDevice()}>
+                                    <View style={styles.button}>
+                                        <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Link</Text>                                
+                                    </View>
+                                </Pressable>
+                            ) : (
+                                <View style={{marginVertical: 30, justifyContent: "center", alignItems: "center"}}>
+                                    <ActivityIndicator size="large" color="blue"/>
+                                    <Text style={{fontSize: 20, fontWeight: "bold"}}>Linking...</Text>
+                                </View>
+                            )
+                        }
                     </View>
                 </View>
             </View>
@@ -117,7 +215,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15
     },
     recentText: {
-        fontSize: 24,
+        fontSize: 16,
         fontWeight: "bold"
     },
     recentSubText: {

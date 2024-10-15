@@ -1,13 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, Button, Alert, Pressable, ScrollView, PermissionsAndroid } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, Alert, Pressable, ScrollView, PermissionsAndroid, ActivityIndicator } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiContext } from '../../server/Api';
+import BleManager from 'react-native-ble-manager';
 
 export default function DeviceScreen(props) {
     const context = useContext(ApiContext);
     useEffect(() => {
         context.getDevices()
+
    }, []);
     return (
         <SafeAreaView style={styles.container}>
@@ -21,52 +23,70 @@ export default function DeviceScreen(props) {
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Add Device</Text>
                     </View>
                 </Pressable>
-                <ScrollView style={{marginBottom: 120, marginTop: 25}}>
-                    {/* <Pressable style={styles.cardBody} onPress={() => {
-                        props.navigation.navigate('BottomTab')
-                    }}>
-                        <View style={{paddingHorizontal: 10}}>
-                            <Image
-                                style={styles.iconSize}
-                                source={require('../../assets/aquarium.png')}/>
-                        </View>
-                        <View style={{padding: 10}}>
-                            <Text style={styles.recentText}>My First Fish Tank</Text>
-                            <Text style={styles.recentSubText}>Online</Text>
-                        </View>
-                    </Pressable> */}
-                    {context.devices.sort((a, b) => a.name.localeCompare(b.name)).map((item, index) => 
-                        <Pressable key={item.id} style={styles.cardBody} onPress={() => {
-                            context.setDevice(item);
-                            props.navigation.navigate('BottomTab');
-                        }}>
-                            <View style={{paddingHorizontal: 10}}>
-                                <Image
-                                    style={styles.iconSize}
-                                    source={require('../../assets/aquarium.png')}/>
+                <Pressable onPress={async () => context.getDevices()}>
+                    <View style={styles.button}>
+                        <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Refresh</Text>
+                    </View>
+                </Pressable>
+                {(context.isListingDone) ? (
+                    <ScrollView style={{marginBottom: 120, marginTop: 25}}>
+                        {(context.devices.length) ? (
+                            context.devices.sort((a, b) => a.name.localeCompare(b.name)).map((item, index) => 
+                                <Pressable key={item.id} style={styles.cardBody} onPress={() => {
+                                    context.setDevice(item);
+                                    props.navigation.navigate('BottomTab');
+                                }}>
+                                    <View style={{paddingHorizontal: 10}}>
+                                        <Image
+                                            style={styles.iconSize}
+                                            source={require('../../assets/aquarium.png')}/>
+                                    </View>
+                                    <View style={{padding: 10}}>
+                                        <Text style={styles.recentText}>{item.name}</Text>
+                                        <Text style={styles.recentSubText}>Type: {item.type}</Text>
+                                        <Text style={styles.recentSubText}>Status: Online</Text>
+                                    </View>
+                                </Pressable>
+                            )
+                        ) : (
+                            <View style={styles.indicateView}>
+                                <Text style={styles.recentText}>No devices are found.</Text>
                             </View>
-                            <View style={{padding: 10}}>
-                                <Text style={styles.recentText}>{item.name}</Text>
-                                <Text style={styles.recentSubText}>Type: {item.type}</Text>
-                                <Text style={styles.recentSubText}>Status: Online</Text>
-                            </View>
-                        </Pressable>
-                    )}
-                </ScrollView>
+                        )}
+                    </ScrollView>
+                ) : (
+                    <View style={styles.indicateView}>
+                        <ActivityIndicator size="large" color="blue" />
+                        <Text style={styles.recentText}>Getting list of devices...</Text>
+                    </View>
+                )}
             </View>
         </SafeAreaView>
     );
 }
 
 const requestFineLocation = async (props) => {
-    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        // You can now use react-native-wifi-reborn
-        props.navigation.navigate('Add Device')
-    } else {
-        // Permission denied
-        Alert.alert('Access Denied. Please go to settings to enable location.')
-    }
+    await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADVERTISE,
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+    ]).then(
+        (granted) => {
+            if (granted['android.permission.ACCESS_FINE_LOCATION']
+                && granted['android.permission.ACCESS_COARSE_LOCATION']
+                && granted['android.permission.BLUETOOTH_SCAN']
+                && granted['android.permission.BLUETOOTH_ADVERTISE']
+                && granted['android.permission.BLUETOOTH_CONNECT']
+                === 'granted') {
+                props.navigation.navigate('Add Device');
+            } else {
+                // Permission denied
+                Alert.alert('Access Denied. Please go to settings to enable permissions.')
+            }
+        }
+    );
 }
 
 const styles = StyleSheet.create({
@@ -121,9 +141,15 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       alignItems: "center",
       borderRadius: 10,
+      marginBottom: 10,
     },
     iconSize: {
       width: 80,
       height: 80,
+    },
+    indicateView: {
+        justifyContent: "center",
+        alignItems: "center",
+        height: 350
     },
 });

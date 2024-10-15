@@ -2,11 +2,13 @@ import React, { useContext, useState } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Picker } from '@react-native-picker/picker';
 import { ApiContext } from '../../server/Api';
 
 function ViewDeviceScreen(props) {
     const context = useContext(ApiContext);
     const [deviceName, setDeviceName] = useState(context.device.name);
+    const [deviceType, setDeviceType] = useState(context.device.type);
     return (
         <SafeAreaView style={styles.container}>
             <MainGradient/>
@@ -26,7 +28,16 @@ function ViewDeviceScreen(props) {
                             />
                         </View>
                         <View style={styles.gap}>
-                            <Text style={styles.recentText}>Type: {context.device.type}</Text>    
+                            <View style={styles.picker}>
+                                <Picker
+                                    selectedValue={deviceType}
+                                    onValueChange={(itemValue, itemIndex) =>
+                                        setDeviceType(itemValue)
+                                    }>
+                                    <Picker.Item label="Indoor" value="Indoor" />
+                                    <Picker.Item label="Outdoor" value="Outdoor" />
+                                </Picker>
+                            </View>
                         </View>
                         <View style={styles.gap}>
                             <Text style={styles.recentText}>IP Address: {context.device.ip_address}</Text>    
@@ -34,9 +45,14 @@ function ViewDeviceScreen(props) {
                         <View style={styles.gap}>
                             <Text style={styles.recentText}>MAC Address: {context.device.mac_address}</Text>    
                         </View>
-                        <Pressable onPress={() => Alert.alert("Saved")}>
+                        <Pressable onPress={() => {context.updateDevice(context.device, deviceName, deviceType, props)}}>
                             <View style={styles.button}>
                                 <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Update</Text>
+                            </View>
+                        </Pressable>
+                        <Pressable onPress={() => {context.deleteDevice(context.device.id, props)}}>
+                            <View style={styles.button}>
+                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Delete</Text>
                             </View>
                         </Pressable>
                     </View>
@@ -97,14 +113,18 @@ const styles = StyleSheet.create({
     input: {
         height: 50,
         borderWidth: 1,
-        borderColor: "#ACACAC",
-        borderRadius: 5,
+        borderRadius: 10,
         padding: 10,
         marginVertical: 5 
     },
     gap: {
         marginVertical: 10
-    }
+    },
+    picker: {
+        borderWidth: 1,
+        borderRadius: 10,
+        marginVertical: 5,
+    },
 });
 
 export default ViewDeviceScreen;

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ApiContext } from '../../server/Api';
 
 function ControlScreen(props) {
+    const context = useContext(ApiContext);
     return (
         <SafeAreaView style={styles.container}>
             <MainGradient/>
@@ -14,7 +16,7 @@ function ControlScreen(props) {
                 <View style={styles.card}>
                     <View style={styles.cardBody}>
                         <View>
-                            <Text style={styles.recentText}>My First Fish Tank</Text>
+                            <Text style={styles.recentText}>{context.device.name}</Text>
                         </View>
                         <View>
                             <Text style={styles.recentSubText}>Temperature: Normal</Text>

@@ -1,39 +1,96 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, Button, Alert, Pressable, ScrollView, PermissionsAndroid } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, Alert, Pressable, ScrollView, PermissionsAndroid, NativeModules, NativeEventEmitter, ActivityIndicator } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiContext } from '../../server/Api';
+import TetheringManager from '@react-native-tethering/wifi';
+import Geolocation from '@react-native-community/geolocation';
 import WifiManager from "react-native-wifi-reborn";
+import BleManager from "react-native-ble-manager";
 // import * as Location from "expo-location";
+
+const BleManagerModule = NativeModules.BleManager;
+const BleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
 export default function AddDeviceScreen(props) {
   const context = useContext(ApiContext);
   var [isScanned, setIsScanned] = useState(false);
-  var [wifiList, setWifilist] = useState([]);
+  var [deviceList, setDevicelist] = useState([]);
+  var [isListened, setIsListened] = useState(false);
 
   useEffect(() => {
-      getWifiList();
+    if (!isListened) {
+      BleManagerEmitter.addListener(
+        'BleManagerStopScan',
+        () => {
+
+          // filter all data scanned
+          let newSet = new Set()
+
+          const newData = deviceList.filter(item => {
+            const isDuplicate = newSet.has(item.id)
+            newSet.add(item.id)
+            return (!isDuplicate) ? true : false;
+          })
+
+
+          setDevicelist(newData)
+
+          setIsScanned(true);
+          console.log('Scan is stopped');
+        },
+      );
+      BleManagerEmitter.addListener(
+        'BleManagerDiscoverPeripheral',
+        (peripheral) => {
+          let newData = deviceList
+
+          newData.push(peripheral)
+          setDevicelist(newData);
+        }
+      );
+      console.log('Listener activated.');
+      setIsListened(true);
+    }
+    getDiscoverableDevice();
   }, []);
 
-  const getWifiList = async () => {
-      setIsScanned(false);
-      const enabled = await WifiManager.isEnabled();
+  
 
-      if (!enabled) {
-        await WifiManager.isEnabled(true);
-      }
-      
-      var data = await WifiManager.reScanAndLoadWifiList().then((r) => {
-        setWifilist(r.length ? r.filter(isFound) : []);
-      }, (e) => {
-        setWifilist([]);
-        Alert.alert(e.toString());
+  const getDiscoverableDevice = async () => {
+    BleManager.enableBluetooth().then(
+      () => {
+          BleManager.start({showAlert: false}).then(() => {
+              console.log('BleManager initialized');
+              setIsScanned(false);
+              setDevicelist([]);    
+          
+              const data = BleManager.scan([], 10).then(
+                () => {
+                  console.log('Scanning....')
+                }
+              )        
+          });
+      },
+      () => {
+        setIsScanned(true);
+          Alert.alert('Please turn on bluetooth.')
+      }  
+    );
+  }
+  
+  const connect = async (item) => {
+    // console.log(item.advertising.serviceUUIDs[0]);
+    BleManager.connect(item.id)
+      .then(() => {
+        console.log("Connected");
+        props.navigation.navigate('Link Device', {item: item});
+
+      })
+      .catch((error) => {
+        Alert.alert(error);
       });
   }
-
-  const isFound = (device) => {
-    return device.SSID == 'AquaAlagaV1';
-  } 
 
   return (
     <SafeAreaView style={styles.container}>
@@ -42,32 +99,38 @@ export default function AddDeviceScreen(props) {
           <Text style={styles.headerText}>{props.route.name}</Text>
       </View>
       <View style={styles.card}>
-          <Pressable onPress={async () => await getWifiList()}>
+          <Pressable onPress={async () => await getDiscoverableDevice()}>
               <View style={styles.button}>
                   <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Scan</Text>
               </View>
           </Pressable>
           { (isScanned) ? (
               <ScrollView>
-              {(wifiList.length) ? (wifiList.sort((a, b) => b.level - a.level).map((item, index) =>
-                <Pressable key={index} style={styles.cardBody} onPress={() => props.navigation.navigate('Link Device', {item: item})}>
+              {(deviceList.length) ? (deviceList.sort((a, b) => a.id.localeCompare(b.id)).map((item, index) =>
+                <Pressable key={index} style={styles.cardBody} onPress={() => connect(item)}>
                   <View style={{flexDirection: 'column'}}>
                     <View>
                       <View>
-                        <Text style={styles.recentText}>{item.SSID}</Text>
+                        <Text style={styles.recentText}>{(!item.advertising.localName)? 'Unknown Device' : item.advertising.localName}</Text>
                       </View>
                       <View>
-                        <Text style={styles.recentSubText}>{item.BSSID}</Text>
+                        <Text style={styles.recentSubText}>{item.id}</Text>
                       </View>
                     </View>
                   </View>
                 </Pressable>
               )) : (
-                <Text style={styles.recentText}>No devices are found.</Text>
+                <View style={styles.indicateView}>
+                  <Text style={styles.recentText}>No devices are found.</Text>
+                </View>
               )}
             </ScrollView>
             ) : (
-              <Text style={styles.recentText}>Scanning....</Text>
+              <View style={styles.indicateView}>
+                <ActivityIndicator size="large" color="blue" />
+                <Text style={styles.recentText}> Scanning....</Text>
+              </View>
+              
             )
           }
       </View>
@@ -133,4 +196,9 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
   },
+  indicateView: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: 350
+  }
 });

@@ -21,7 +21,8 @@ class ApiProvider extends Component {
             reports: [],
             schedInterval: null,
             isLoggedOn: false,
-            device: {}
+            device: {},
+            isListingDone: false
         }
         this.data = []
     }
@@ -131,13 +132,69 @@ class ApiProvider extends Component {
     }
 
     getDevices = async () => {
-        instance.get('device').then((response) => {
-            this.updateState(this, {devices: response.data})
-        })
+        this.updateState(this, {isListingDone: false});
+        
+        setTimeout(() => {
+            instance.get('device').then((response) => {
+                this.updateState(this, {devices: response.data})
+                this.updateState(this, {isListingDone: true});
+            },
+            () => {
+                Alert.alert('Something went wrong')
+                this.updateState(this, {isListingDone: true});
+            })
+        }, 2000)
     }
 
     setDevice = async (data) => {
         this.updateState(this, {device: data})
+    }
+
+    updateDevice = async (device, name, type, props) => {
+        let data = {
+            name: name,
+            type: type,
+            mac_address: device.mac_address,
+            ip_address: device.ip_address,
+        }
+        instance.patch(`device?_id=${device.id}`, data, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            if (response.data.code == 200) {
+                this.setDevice(data);
+                this.getDevices();
+                Alert.alert('Device Updated to Database!');
+            }
+            else if (response.data.code == 409) {
+                Alert.alert(response.data.message);
+            }
+            else {
+                Alert.alert('Something went wrong!');
+            }
+        })
+    }
+
+    deleteDevice = async (id, props) => {
+        instance.delete(`device?_id=${id}`, {}, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            if (response.data.code == 200) {
+                Alert.alert('Device Deleted to Database!');
+                props.navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'BottomTabMain' }]
+                });
+            }
+            else {
+                Alert.alert('Something went wrong!');
+            }
+        })
     }
 
     login = async (username, password, props) => {
@@ -202,6 +259,9 @@ class ApiProvider extends Component {
                 getDevices: this.getDevices,
                 device: this.state.device,
                 setDevice: this.setDevice,
+                updateDevice: this.updateDevice,
+                deleteDevice: this.deleteDevice,
+                isListingDone: this.state.isListingDone,
             }}>
                 {this.props.children}
             </ApiContext.Provider>
