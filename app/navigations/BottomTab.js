@@ -11,6 +11,8 @@ import ScheduleScreen from '../screens/ScheduleScreen';
 import ViewScheduleScreen from '../screens/ViewScheduleScreen';
 import AddScheduleScreen from '../screens/AddScheduleScreen';
 import { ApiContext } from '../../server/Api';
+import AddDeviceScreen from '../screens/AddDeviceScreen';
+import ViewDeviceScreen from '../screens/ViewDeviceScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -48,19 +50,22 @@ function BottomTab(props) {
                 tabBarIcon: ({color, size}) => (
                     <Ionicons name='home' color={color} size={32}/>
                 )
-            }}/>
+            }}  
+            />
             <Tab.Screen name="Reports" component={ReportScreen} options={{
                 tabBarLabel: 'Reports',
                 tabBarIcon: ({color, size}) => (
                     <Ionicons name='document-text' color={color} size={32}/>
                 )
-            }}/>
+            }}  
+            />
             <Tab.Screen name="Controls" component={ControlScreen} options={{
                 tabBarLabel: 'Controls',
                 tabBarIcon: ({color, size}) => (
                     <Ionicons name='options' color={color} size={32}/>
                 )
-            }}/>
+            }}  
+            />
             <Tab.Screen name="Schedule Navigator" component={ScheduleNavigator} options={{
                 tabBarLabel: 'Schedules',
                 tabBarIcon: ({color, size}) => (
@@ -70,19 +75,22 @@ function BottomTab(props) {
                 tabPress: e => {
                     // context.getSchedules();
                 }
-            }}/>
+            }}  
+            />
             <Tab.Screen name="Notification" component={NotificationScreen} options={{
                 tabBarLabel: 'Notification',
                 tabBarIcon: ({color, size}) => (
                     <Ionicons name='notifications' color={color} size={32}/>
                 )
-            }}/>
-            <Tab.Screen name="Profile" component={ProfileScreen} options={{
-                tabBarLabel: 'Profile',
+            }}  
+            />
+            <Tab.Screen name="Settings" component={ViewDeviceScreen} options={{
+                tabBarLabel: 'Settings',
                 tabBarIcon: ({color, size}) => (
-                    <Ionicons name='person' color={color} size={32}/>
+                    <Ionicons name='cog-outline' color={color} size={32}/>
                 )
-            }}/>
+            }}  
+            />
         </Tab.Navigator>
     );
 }
@@ -94,11 +102,10 @@ const Stack = createStackNavigator();
 function ScheduleNavigator(props) {  
     const context = useContext(ApiContext);  
     return (
-        <Stack.Navigator initialRouteName='Schedules' screenOptions={{headerShown: false}} screenListeners={{}}
-        >
-            <Stack.Screen name="Schedules" component={ScheduleScreen}/>
-            <Stack.Screen name="View Schedule" component={ViewScheduleScreen} />
-            <Stack.Screen name="Add Schedule" component={AddScheduleScreen} />
+        <Stack.Navigator initialRouteName='Schedules' screenOptions={{headerShown: false}} screenListeners={{}}>
+            <Stack.Screen name="Schedules"  component={ScheduleScreen}/>
+            <Stack.Screen name="View Schedule"  component={ViewScheduleScreen} />
+            <Stack.Screen name="Add Schedule"  component={AddScheduleScreen} />
         </Stack.Navigator>
     )
 }

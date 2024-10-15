@@ -15,12 +15,13 @@ class ApiProvider extends Component {
         super(props);
         this.state = {
             account: [],
-            device: [],
+            devices: [],
             schedules: [],
             notifications: [],
             reports: [],
             schedInterval: null,
-            isLoggedOn: false
+            isLoggedOn: false,
+            device: {}
         }
         this.data = []
     }
@@ -129,6 +130,16 @@ class ApiProvider extends Component {
         })
     }
 
+    getDevices = async () => {
+        instance.get('device').then((response) => {
+            this.updateState(this, {devices: response.data})
+        })
+    }
+
+    setDevice = async (data) => {
+        this.updateState(this, {device: data})
+    }
+
     login = async (username, password, props) => {
         instance.get('login', { params: { username: username, password: password } }).then((response) => {
             this.setState({isLoggedOn: response.data.access, account: response.data.data}, () => {
@@ -136,7 +147,7 @@ class ApiProvider extends Component {
                 if (this.state.isLoggedOn) {
                     props.navigation.reset({
                         index: 0,
-                        routes: [{ name: 'BottomTab' }]
+                        routes: [{ name: 'Device' }]
                     })
                 }
                 else {
@@ -186,7 +197,11 @@ class ApiProvider extends Component {
                 deleteSchedule: this.deleteSchedule,
                 toggleSchedule: this.toggleSchedule,
                 reports: this.state.reports,
-                getReports: this.getReports
+                getReports: this.getReports,
+                devices: this.state.devices,
+                getDevices: this.getDevices,
+                device: this.state.device,
+                setDevice: this.setDevice,
             }}>
                 {this.props.children}
             </ApiContext.Provider>
