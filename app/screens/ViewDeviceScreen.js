@@ -1,14 +1,19 @@
 import React, { useContext, useState } from 'react';
-import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput, ActivityIndicator } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
 import { ApiContext } from '../../server/Api';
+import { MqttContext } from '../../server/Mqtt';
 
 function ViewDeviceScreen(props) {
     const context = useContext(ApiContext);
+    const mqtt = useContext(MqttContext);
     const [deviceName, setDeviceName] = useState(context.device.name);
     const [deviceType, setDeviceType] = useState(context.device.type);
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingMsg, setLoadingMsg] = useState('');
+
     return (
         <SafeAreaView style={styles.container}>
             <MainGradient/>
@@ -45,16 +50,37 @@ function ViewDeviceScreen(props) {
                         <View style={styles.gap}>
                             <Text style={styles.recentText}>MAC Address: {context.device.mac_address}</Text>    
                         </View>
-                        <Pressable onPress={() => {context.updateDevice(context.device, deviceName, deviceType, props)}}>
-                            <View style={styles.button}>
-                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Update</Text>
-                            </View>
-                        </Pressable>
-                        <Pressable onPress={() => {context.deleteDevice(context.device.id, props)}}>
-                            <View style={styles.button}>
-                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Delete</Text>
-                            </View>
-                        </Pressable>
+                        { (!isLoading) ? 
+                            (
+                                <View>
+                                    <Pressable onPress={() => {
+                                        setLoadingMsg("Updating...")
+                                        setIsLoading(true);
+                                        context.updateDevice(context.device, deviceName, deviceType, setIsLoading)
+                                    }}>
+                                        <View style={styles.button}>
+                                            <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Update</Text>
+                                        </View>
+                                    </Pressable>
+                                    <Pressable onPress={() => {
+                                            setLoadingMsg("Deleting...")
+                                            setIsLoading(true);
+                                            // mqtt.subscribe(`/${context.device.id}/delete`);
+                                            // mqtt.publish(`/${context.device.id}/delete`, 'DELETE');
+                                            context.deleteDevice(context.device.id, props, setIsLoading);
+                                        }}>
+                                        <View style={styles.button}>
+                                            <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Delete</Text>
+                                        </View>
+                                    </Pressable>
+                                </View>
+                            ) : (
+                                <View style={{marginVertical: 30, justifyContent: "center", alignItems: "center"}}>
+                                    <ActivityIndicator size="large" color="blue"/>
+                                    <Text style={{fontSize: 20, fontWeight: "bold"}}>{loadingMsg}</Text>
+                                </View>
+                            )
+                        }
                     </View>
                 </View>
             </View>

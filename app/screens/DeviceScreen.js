@@ -3,14 +3,15 @@ import { StyleSheet, Text, View, Image, Button, Alert, Pressable, ScrollView, Pe
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiContext } from '../../server/Api';
-import BleManager from 'react-native-ble-manager';
+import { MqttContext } from '../../server/Mqtt';
 
 export default function DeviceScreen(props) {
     const context = useContext(ApiContext);
+    const mqtt = useContext(MqttContext);
     useEffect(() => {
-        context.getDevices()
+        context.getDevices();
+    }, []);
 
-   }, []);
     return (
         <SafeAreaView style={styles.container}>
             <MainGradient/>
@@ -29,12 +30,16 @@ export default function DeviceScreen(props) {
                     </View>
                 </Pressable>
                 {(context.isListingDone) ? (
-                    <ScrollView style={{marginBottom: 120, marginTop: 25}}>
+                    <ScrollView style={{marginBottom: 140, marginTop: 15}}>
                         {(context.devices.length) ? (
                             context.devices.sort((a, b) => a.name.localeCompare(b.name)).map((item, index) => 
                                 <Pressable key={item.id} style={styles.cardBody} onPress={() => {
-                                    context.setDevice(item);
-                                    props.navigation.navigate('BottomTab');
+                                    // let isConnected = mqtt.subscribe(`/${item.id}/sensor`)
+                                    let isConnected = true;
+                                    if (isConnected) {
+                                        context.setDevice(item);
+                                        props.navigation.navigate('BottomTab');
+                                    }
                                 }}>
                                     <View style={{paddingHorizontal: 10}}>
                                         <Image
@@ -104,8 +109,8 @@ const styles = StyleSheet.create({
         marginVertical: 60
     },
     card: {
-        marginTop: 50,
-        marginBottom: 32
+        marginTop: 25,
+        marginBottom: 64
     },
     cardTitle: {
         fontSize: 28,
@@ -141,11 +146,11 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       alignItems: "center",
       borderRadius: 10,
-      marginBottom: 10,
+      marginBottom: 5,
     },
     iconSize: {
-      width: 80,
-      height: 80,
+      width: 70,
+      height: 70,
     },
     indicateView: {
         justifyContent: "center",
