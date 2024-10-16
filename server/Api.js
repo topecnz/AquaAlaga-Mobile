@@ -15,12 +15,14 @@ class ApiProvider extends Component {
         super(props);
         this.state = {
             account: [],
-            device: [],
+            devices: [],
             schedules: [],
             notifications: [],
             reports: [],
             schedInterval: null,
-            isLoggedOn: false
+            isLoggedOn: false,
+            device: {},
+            isListingDone: false
         }
         this.data = []
     }
@@ -129,6 +131,93 @@ class ApiProvider extends Component {
         })
     }
 
+    getDevices = async () => {
+        this.updateState(this, {isListingDone: false});
+        
+        setTimeout(() => {
+            instance.get('device').then((response) => {
+                this.updateState(this, {devices: response.data})
+                this.updateState(this, {isListingDone: true});
+            },
+            () => {
+                Alert.alert('Something went wrong')
+                this.updateState(this, {isListingDone: true});
+            })
+        }, 2000)
+    }
+
+    setDevice = async (data) => {
+        this.updateState(this, {device: data})
+    }
+
+    updateDevice = async (device, name, type, setIsLoading) => {
+        let data = {
+            id: device.id,
+            name: name,
+            type: type,
+            mac_address: device.mac_address,
+            ip_address: device.ip_address,
+        }
+        instance.patch(`device?_id=${device.id}`, data, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then(
+            (response) => {
+                if (response.data.code == 200) {
+                    this.setDevice(data);
+                    this.getDevices();
+                    setTimeout(() => {
+                        Alert.alert('Device has been updated.');
+                        setIsLoading(false);
+                    }, 1000)
+                }
+                else if (response.data.code == 409) {
+                    Alert.alert(response.data.message);
+                    setIsLoading(false);
+                }
+                else {
+                    Alert.alert('Something went wrong!');
+                    setIsLoading(false);
+                }
+            },
+            (e) => {
+                Alert.alert(e);
+                setIsLoading(false);
+            }
+        )}
+
+    deleteDevice = async (id, props, setIsLoading) => {
+        instance.delete(`device?_id=${id}`, {}, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then(
+            (response) => {
+                if (response.data.code == 200) {
+                    setTimeout(() => {
+                        Alert.alert('Device has been deleted.');
+                        setIsLoading(false);
+                        props.navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'BottomTabMain' }]
+                        })
+                    }, 1000);
+                }
+                else {
+                    Alert.alert('Something went wrong!');
+                    setIsLoading(false);
+                }
+            },
+            (e) => {
+                Alert.alert(e);
+                setIsLoading(false);
+            }
+        )
+    }
+
     login = async (username, password, props) => {
         instance.get('login', { params: { username: username, password: password } }).then((response) => {
             this.setState({isLoggedOn: response.data.access, account: response.data.data}, () => {
@@ -136,7 +225,7 @@ class ApiProvider extends Component {
                 if (this.state.isLoggedOn) {
                     props.navigation.reset({
                         index: 0,
-                        routes: [{ name: 'BottomTab' }]
+                        routes: [{ name: 'Device' }]
                     })
                 }
                 else {
@@ -186,7 +275,14 @@ class ApiProvider extends Component {
                 deleteSchedule: this.deleteSchedule,
                 toggleSchedule: this.toggleSchedule,
                 reports: this.state.reports,
-                getReports: this.getReports
+                getReports: this.getReports,
+                devices: this.state.devices,
+                getDevices: this.getDevices,
+                device: this.state.device,
+                setDevice: this.setDevice,
+                updateDevice: this.updateDevice,
+                deleteDevice: this.deleteDevice,
+                isListingDone: this.state.isListingDone,
             }}>
                 {this.props.children}
             </ApiContext.Provider>

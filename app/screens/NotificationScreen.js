@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable, ScrollView } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ApiContext } from '../../server/Api';
 
 function NotificationScreen(props) {
+    const context = useContext(ApiContext);
     return (
         <SafeAreaView style={styles.container}>
             <MainGradient/>
@@ -12,7 +14,7 @@ function NotificationScreen(props) {
             </View>
             <View style={styles.body}>
                 <View style={styles.card}>
-                    <Text style={styles.cardTitle}>My First Fish Tank</Text>
+                    <Text style={styles.cardTitle}>{context.device.name}</Text>
                     <Text style={styles.markText}>Mark all as read</Text>
                     <ScrollView style={{marginBottom: 120}}>
                         <View style={styles.cardBody}>
