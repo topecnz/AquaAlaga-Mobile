@@ -150,8 +150,9 @@ class ApiProvider extends Component {
         this.updateState(this, {device: data})
     }
 
-    updateDevice = async (device, name, type, props) => {
+    updateDevice = async (device, name, type, setIsLoading) => {
         let data = {
+            id: device.id,
             name: name,
             type: type,
             mac_address: device.mac_address,
@@ -162,39 +163,59 @@ class ApiProvider extends Component {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
-        }).then((response) => {
-            if (response.data.code == 200) {
-                this.setDevice(data);
-                this.getDevices();
-                Alert.alert('Device Updated to Database!');
+        }).then(
+            (response) => {
+                if (response.data.code == 200) {
+                    this.setDevice(data);
+                    this.getDevices();
+                    setTimeout(() => {
+                        Alert.alert('Device has been updated.');
+                        setIsLoading(false);
+                    }, 1000)
+                }
+                else if (response.data.code == 409) {
+                    Alert.alert(response.data.message);
+                    setIsLoading(false);
+                }
+                else {
+                    Alert.alert('Something went wrong!');
+                    setIsLoading(false);
+                }
+            },
+            (e) => {
+                Alert.alert(e);
+                setIsLoading(false);
             }
-            else if (response.data.code == 409) {
-                Alert.alert(response.data.message);
-            }
-            else {
-                Alert.alert('Something went wrong!');
-            }
-        })
-    }
+        )}
 
-    deleteDevice = async (id, props) => {
+    deleteDevice = async (id, props, setIsLoading) => {
         instance.delete(`device?_id=${id}`, {}, {
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
-        }).then((response) => {
-            if (response.data.code == 200) {
-                Alert.alert('Device Deleted to Database!');
-                props.navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'BottomTabMain' }]
-                });
+        }).then(
+            (response) => {
+                if (response.data.code == 200) {
+                    setTimeout(() => {
+                        Alert.alert('Device has been deleted.');
+                        setIsLoading(false);
+                        props.navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'BottomTabMain' }]
+                        })
+                    }, 1000);
+                }
+                else {
+                    Alert.alert('Something went wrong!');
+                    setIsLoading(false);
+                }
+            },
+            (e) => {
+                Alert.alert(e);
+                setIsLoading(false);
             }
-            else {
-                Alert.alert('Something went wrong!');
-            }
-        })
+        )
     }
 
     login = async (username, password, props) => {
