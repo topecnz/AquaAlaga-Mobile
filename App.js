@@ -5,13 +5,16 @@ import { registerRootComponent } from 'expo';
 import ApiProvider from './server/Api';
 
 import StackNav from './app/navigations/StackNav';
+import MqttProvider from './server/Mqtt';
 
 export default function App() {
   return (
     <ApiProvider>
-        <NavigationContainer>
-          <StackNav/>
-        </NavigationContainer>
+        <MqttProvider>
+          <NavigationContainer>
+            <StackNav/>
+          </NavigationContainer>
+        </MqttProvider>
     </ApiProvider>
   );
 }
