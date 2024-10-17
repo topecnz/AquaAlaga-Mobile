@@ -4,10 +4,10 @@
     "slug": "AquaAlaga-Mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/logo.png",
+      "image": "./assets/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -16,7 +16,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.topecnz.AquaAlagaMobile",
@@ -31,7 +31,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/logo.png"
+      "favicon": "./assets/icon.png"
     },
     "plugins": [
       [
