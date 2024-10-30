@@ -33,25 +33,26 @@ class ApiProvider extends Component {
 
 
 
-    getSchedules = async () => {
-        instance.get('schedule').then((response) => {
+    getSchedules = async (id) => {
+        instance.get(`schedule?_id=${id}`).then((response) => {
             this.updateState(this, {schedules: response.data})
         })
     }
 
-    getReports = async () => {
-        instance.get('report').then((response) => {
+    getReports = async (id) => {
+        instance.get(`report?_id=${id}`).then((response) => {
             this.updateState(this, {reports: response.data})
         })
     }
 
-    addSchedule = async (name, time, repeat, timer, props) => {
+    addSchedule = async (name, time, repeat, timer, id, props) => {
         instance.post('schedule', {
             name: name,
             time: time,
             repeat: repeat,
             timer: timer,
-            is_enable: true
+            is_enable: true,
+            device_id: id
         }, {
             headers: {
                 "Content-Type": "application/json",
@@ -71,13 +72,14 @@ class ApiProvider extends Component {
         })
     }
 
-    updateSchedule = async (id, name, time, repeat, timer, props) => {
+    updateSchedule = async (id, name, time, repeat, timer, device_id, props) => {
         instance.patch(`schedule?_id=${id}`, {
             name: name,
             time: time,
             repeat: repeat,
             timer: timer,
-            is_enable: true
+            is_enable: true,
+            device_id: device_id
         }, {
             headers: {
                 "Content-Type": "application/json",

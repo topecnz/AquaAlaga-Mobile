@@ -10,7 +10,7 @@ function ScheduleScreen(props) {
     const context = useContext(ApiContext);
     useEffect(() => {
         console.log('test')
-        context.getSchedules()
+        context.getSchedules(context.device.id)
    }, []);
     return (
         <SafeAreaView style={styles.container}>
