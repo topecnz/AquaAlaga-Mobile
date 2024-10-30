@@ -32,11 +32,11 @@ class MqttProvider extends Component {
     }
     notif = async (message) => {
         try {
-          console.log('notifying:', message.message);
+          console.log('notifying:', message.id);
           await Notifications.scheduleNotificationAsync({
             content: {
               title: 'New Message',
-              body: message.message, 
+              body: message.id, 
             },
             trigger: null, 
           });
@@ -109,6 +109,10 @@ class MqttProvider extends Component {
         // called when client has unsubscribed from a topic
             console.log('Unsubscribed ' + topic);
         });
+        client.on(MqttEvent.DISCONNECTED, (topic) => {
+        // called when client is disconnected
+            console.log('Disconnected!');
+        });
         
         try {
             await client.connectAsync();
@@ -160,6 +164,15 @@ class MqttProvider extends Component {
             console.log("Error" + e);
         }
     }
+
+    onDisconnect = async () => {
+        try {
+            await client.disconnectAsync();
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
     
     notifRequest = async () => {
         await Notifications.requestPermissionsAsync();
@@ -181,7 +194,7 @@ class MqttProvider extends Component {
     }
 
     componentWillUnmount() {
-        client.disconnectAsync()
+        this.onDisconnect();
     }
 
     updateState = async (prevState, newState = {}) => {
