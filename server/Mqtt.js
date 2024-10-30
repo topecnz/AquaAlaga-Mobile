@@ -1,4 +1,3 @@
-//import liraries
 import React, { Component, createContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MqttClient, MqttEvent, MqttOptionsBuilder } from 'react-native-mqtt-clients';
@@ -24,7 +23,8 @@ class MqttProvider extends Component {
             client: client,
             data: {
                 pH: 0,
-                temp: 0
+                temp: 0,
+                feed: 0,
             },
             isDeleted: false
         }
@@ -112,7 +112,8 @@ class MqttProvider extends Component {
             await client.unsubscribeAsync(topic)
             this.updateState(this, {data: {
                 pH: 0,
-                temp: 0
+                temp: 0,
+                feed: 0,
             }})
         } catch (e) {
             console.log(e)
