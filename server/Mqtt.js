@@ -62,7 +62,7 @@ class MqttProvider extends Component {
                     console.log("DELETED " + data.id);
                 }
 
-                if (topic.includes("/notif")) {
+                if (topic.includes("/notification")) {
                     this.notif(data);
                 }
             }
@@ -181,7 +181,7 @@ class MqttProvider extends Component {
     }
 
     componentWillUnmount() {
-        // client.disconnectAsync()
+        client.disconnectAsync()
     }
 
     updateState = async (prevState, newState = {}) => {
