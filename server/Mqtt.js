@@ -1,4 +1,3 @@
-//import liraries
 import React, { Component, createContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MqttClient, MqttEvent, MqttOptionsBuilder } from 'react-native-mqtt-clients';
@@ -22,7 +21,11 @@ class MqttProvider extends Component {
         super(props);
         this.state = {
             client: client,
-            data: {},
+            data: {
+                pH: 0,
+                temp: 0,
+                feed: 0,
+            },
             isDeleted: false
         }
     }
@@ -34,13 +37,14 @@ class MqttProvider extends Component {
             (topic, payload) => {
                 // called when client has received a message
                 var msg = Buffer.from(payload.buffer);
+                let data = JSON.parse(msg);
                 if (topic.includes("/sensor")) {
                     console.log("RECEIVED " + msg.toString())
-                    this.updateState(this, {data: JSON.parse(msg)})
+                    this.updateState(this, {data: data})
                 }
 
-                if (topic.includes("/delete") && msg.includes("OK")) {
-                    this.updateState(this, {data: JSON.parse(msg)})
+                if (topic.includes("/delete") && data.message == "OK") {
+                    console.log("DELETED " + data.id);
                 }
             }
         );
@@ -48,7 +52,7 @@ class MqttProvider extends Component {
             (topic, payload) => {
                 // called when client has sent a message
                 var msg = Buffer.from(payload.buffer);
-                console.log("PUBLISHED " + msg);
+                console.log(`[${topic}] PUBLISHED ${msg}`);
             }
         );
         client.on(MqttEvent.CONNECTION_LOST, (error) => {
@@ -82,38 +86,46 @@ class MqttProvider extends Component {
         } catch (e) {
         // handle error
             console.log('MQTT broker error.')
+            setTimeout(() => {
+                this.onConnect();
+            }, 3000)
         }
     }
 
-    subscribe = async (topic) => {
+    subscribe = async (topic, item, onSelect) => {
         try {
             await client.subscribeAsync(
             {
                 topic: topic,
                 qos: 0
-            })
-            return true;
+            }).then(() => {
+                onSelect(true, item);
+            });
         } catch (e) {
             console.log(e)
-            return false;
+            onSelect(false, item);
         }
     }
 
     unsubscribe = async (topic) => {
         try {
             await client.unsubscribeAsync(topic)
+            this.updateState(this, {data: {
+                pH: 0,
+                temp: 0,
+                feed: 0,
+            }})
         } catch (e) {
             console.log(e)
         }
     }
 
     publish = async (topic, msg) => {
+        let r = Buffer.from(msg).toJSON().data;
         try {
             client.publish(
                 topic,
-                Buffer.from(msg),
-                0,
-                false
+                r,
             );
         } catch (e) {
             console.log("Error" + e);

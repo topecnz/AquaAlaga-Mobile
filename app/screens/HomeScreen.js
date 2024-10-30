@@ -1,11 +1,20 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiContext } from '../../server/Api';
+import { MqttContext } from '../../server/Mqtt';
 
 function HomeScreen(props) {
     const context = useContext(ApiContext)
+    const mqtt = useContext(MqttContext)
+
+    useEffect(() => {
+        return () => {
+            mqtt.unsubscribe(`/${context.device.id}/sensor`);
+        }
+    },[])
+
     return (
         <SafeAreaView style={styles.container}>
             <MainGradient/>
@@ -31,24 +40,9 @@ function HomeScreen(props) {
                             <Text style={styles.recentText}>{context.device.name}</Text>
                         </View>
                         <View>
-                            <Text style={styles.recentSubText}>Temperature: Normal</Text>
-                            <Text style={styles.recentSubText}>pH Level: Basic</Text>
+                            <Text style={styles.recentSubText}>Temperature: {mqtt.data.temp}C</Text>
+                            <Text style={styles.recentSubText}>pH Level: {mqtt.data.pH}</Text>
                         </View>
-                    </View>
-                </View>
-                <View style={styles.card}>
-                    <Text style={styles.cardTitle}>Shortcuts</Text>
-                    <View style={styles.cardBody}>
-                        <Pressable style={styles.buttonMargin} onPress={() => Alert.alert("Pressed")}>
-                            <View style={styles.button}>
-                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Hold to Feed</Text>
-                            </View>
-                        </Pressable>
-                        <Pressable onPress={() => Alert.alert("Pressed")}>
-                            <View style={styles.button}>
-                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>View Schedules</Text>
-                            </View>
-                        </Pressable>
                     </View>
                 </View>
             </View>

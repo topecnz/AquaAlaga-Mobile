@@ -8,9 +8,22 @@ import { MqttContext } from '../../server/Mqtt';
 export default function DeviceScreen(props) {
     const context = useContext(ApiContext);
     const mqtt = useContext(MqttContext);
+
+    const [isSelected, setIsSelected] = useState({});
+
     useEffect(() => {
         context.getDevices();
     }, []);
+
+    const onSelect = (res, item) => {
+        if (res) {
+            context.setDevice(item);
+            props.navigation.navigate('BottomTab');
+            return 0
+        }
+
+        Alert.alert('MQTT broker connection failed.')
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -34,12 +47,7 @@ export default function DeviceScreen(props) {
                         {(context.devices.length) ? (
                             context.devices.sort((a, b) => a.name.localeCompare(b.name)).map((item, index) => 
                                 <Pressable key={item.id} style={styles.cardBody} onPress={() => {
-                                    // let isConnected = mqtt.subscribe(`/${item.id}/sensor`)
-                                    let isConnected = true;
-                                    if (isConnected) {
-                                        context.setDevice(item);
-                                        props.navigation.navigate('BottomTab');
-                                    }
+                                    mqtt.subscribe(`/${item.id}/sensor`, item, onSelect)
                                 }}>
                                     <View style={{paddingHorizontal: 10}}>
                                         <Image

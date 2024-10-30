@@ -225,7 +225,7 @@ class ApiProvider extends Component {
                 if (this.state.isLoggedOn) {
                     props.navigation.reset({
                         index: 0,
-                        routes: [{ name: 'Device' }]
+                        routes: [{ name: 'BottomTabMain' }]
                     })
                 }
                 else {

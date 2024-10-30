@@ -3,9 +3,11 @@ import { StyleSheet, Text, View, Image, Button, Alert, Pressable } from 'react-n
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiContext } from '../../server/Api';
+import { MqttContext } from '../../server/Mqtt';
 
 function ControlScreen(props) {
     const context = useContext(ApiContext);
+    const mqtt = useContext(MqttContext);
     return (
         <SafeAreaView style={styles.container}>
             <MainGradient/>
@@ -19,8 +21,8 @@ function ControlScreen(props) {
                             <Text style={styles.recentText}>{context.device.name}</Text>
                         </View>
                         <View>
-                            <Text style={styles.recentSubText}>Temperature: Normal</Text>
-                            <Text style={styles.recentSubText}>pH Level: Basic</Text>
+                            <Text style={styles.recentSubText}>Temperature: {mqtt.data.temp}C</Text>
+                            <Text style={styles.recentSubText}>pH Level: {mqtt.data.pH}</Text>
                         </View>
                     </View>
                 </View>
@@ -29,12 +31,15 @@ function ControlScreen(props) {
                     <Text style={styles.cardSubTitle}>Press and hold the button to activate feeding.</Text>
                     <Text style={styles.cardSubTitle}>Release the button to deactivate.</Text>
                     <View style={styles.cardBody}>
-                        <Pressable style={styles.buttonMargin} onPress={() => props.navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'BottomTab' }]
-                        })}>
+                        <Pressable style={styles.buttonMargin} onLongPress={() => {
+                            mqtt.publish(`/${context.device.id}/remote`, "ON")
+                        }}
+                        onPressOut={() => {
+                            mqtt.publish(`/${context.device.id}/remote`, "OFF")
+                        }}
+                        >
                             <View style={styles.button}>
-                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Hold to Feed</Text>
+                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Hold</Text>
                             </View>
                         </Pressable>
                     </View>

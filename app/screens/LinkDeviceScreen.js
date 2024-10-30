@@ -31,6 +31,7 @@ function LinkDeviceScreen(props) {
     
                 if (value == 'true') {
                     disconnect();
+                    Alert.alert('Success!');
                 } else if (value == 'existed') {
                     Alert.alert('Device name already existed.')
                 } else if (value == 'failed_request') {
@@ -44,7 +45,10 @@ function LinkDeviceScreen(props) {
             console.log('Listener activated.');
             setIsSet(true);
         }
-    })
+        return () => {
+            disconnect();
+        }
+    }, [])
 
     const disconnect = async () => {
         BleManagerEmitter.removeAllListeners('BleManagerDiscoverPeripheral');
@@ -59,7 +63,6 @@ function LinkDeviceScreen(props) {
                     index: 0,
                     routes: [{ name: 'BottomTabMain' }]
                 });
-                Alert.alert('Success!');
             },
             (e) => {
                 console.log(e);
