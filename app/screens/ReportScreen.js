@@ -9,11 +9,12 @@ import RNPickerSelect from 'react-native-picker-select';
 function ReportScreen(props) {
     const context = useContext(ApiContext);
     const [selectedRange, setSelectedRange] = useState('All');
-    const [selectedSensor, setSelectedSensor] = useState('All Sensors'); 
+    const [selectedSensor, setSelectedSensor] = useState(null);
+
 
     useEffect(() => {
         console.log('Fetching reports...');
-        context.getReports(context.device.id);
+        context.getReports();
     }, []);
 
    
@@ -74,7 +75,8 @@ function ReportScreen(props) {
                     { label: '1 Month Ago', value: '1 Month Ago' },
                 ]}
                 style={pickerSelectStyles}
-                placeholder={{ label: 'Select Date Range'}}
+                placeholder={{ label: 'Select Date Range' }}
+                value = {selectedRange}
             />
 
             <View style={styles.sensorSelection}>
