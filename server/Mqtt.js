@@ -61,6 +61,10 @@ class MqttProvider extends Component {
                 if (topic.includes("/delete") && data.message == "OK") {
                     console.log("DELETED " + data.id);
                 }
+
+                if (topic.includes("/notif")) {
+                    this.notif(data);
+                }
             }
         );
         client.on(MqttEvent.MESSAGE_PUBLISHED,
@@ -83,9 +87,19 @@ class MqttProvider extends Component {
             // called when client is connecting
             console.log('Connecting...')
         });
-        client.on(MqttEvent.CONNECTED, () => {
+        client.on(MqttEvent.CONNECTED, async () => {
             // called when client is connected
             console.log('Connected!')
+            try {
+                await client.subscribeAsync({
+                    topic: "/notification",
+                    qos: 0
+                }).then(() => {
+                    // this.notif({message: "Message"});
+                });
+            } catch (e) {
+                console.log(e)
+            }
         });
         client.on(MqttEvent.SUBSCRIBED, (topic) => {
         // called when client has subscribed to a topic
@@ -156,11 +170,14 @@ class MqttProvider extends Component {
             shouldSetBadge: false,
           }),
         });
+        
       };
 
     componentDidMount() {
-        this.notifRequest();
         this.onConnect();
+        this.notifRequest();
+        
+        
     }
 
     componentWillUnmount() {
