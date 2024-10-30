@@ -2,6 +2,7 @@ import React, { Component, createContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MqttClient, MqttEvent, MqttOptionsBuilder } from 'react-native-mqtt-clients';
 import { Buffer } from 'buffer';
+import * as Notifications from "expo-notifications";    
 
 export const MqttContext = createContext();
 
@@ -29,6 +30,20 @@ class MqttProvider extends Component {
             isDeleted: false
         }
     }
+    notif = async (message) => {
+        try {
+          console.log('notifying:', message.message);
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: 'New Message',
+              body: message.message, 
+            },
+            trigger: null, 
+          });
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
 
     onConnect = async () => {
         await client.init()
@@ -45,6 +60,10 @@ class MqttProvider extends Component {
 
                 if (topic.includes("/delete") && data.message == "OK") {
                     console.log("DELETED " + data.id);
+                }
+
+                if (topic.includes("/notification")) {
+                    this.notif(data);
                 }
             }
         );
@@ -68,9 +87,19 @@ class MqttProvider extends Component {
             // called when client is connecting
             console.log('Connecting...')
         });
-        client.on(MqttEvent.CONNECTED, () => {
+        client.on(MqttEvent.CONNECTED, async () => {
             // called when client is connected
             console.log('Connected!')
+            try {
+                await client.subscribeAsync({
+                    topic: "/notification",
+                    qos: 0
+                }).then(() => {
+                    // this.notif({message: "Message"});
+                });
+            } catch (e) {
+                console.log(e)
+            }
         });
         client.on(MqttEvent.SUBSCRIBED, (topic) => {
         // called when client has subscribed to a topic
@@ -131,13 +160,28 @@ class MqttProvider extends Component {
             console.log("Error" + e);
         }
     }
+    
+    notifRequest = async () => {
+        await Notifications.requestPermissionsAsync();
+        Notifications.setNotificationHandler({
+          handleNotification: async () => ({
+            shouldShowAlert: true,
+            shouldPlaySound: true,
+            shouldSetBadge: false,
+          }),
+        });
+        
+      };
 
     componentDidMount() {
         this.onConnect();
+        this.notifRequest();
+        
+        
     }
 
     componentWillUnmount() {
-        // client.disconnectAsync()
+        client.disconnectAsync()
     }
 
     updateState = async (prevState, newState = {}) => {
