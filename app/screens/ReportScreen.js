@@ -1,25 +1,28 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Pressable } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiContext } from '../../server/Api';
-import { format, subDays } from 'date-fns';
+import { format, set, subDays } from 'date-fns';
 import RNPickerSelect from 'react-native-picker-select';
 
 function ReportScreen(props) {
     const context = useContext(ApiContext);
     const [selectedRange, setSelectedRange] = useState('All');
-    
+    const [selectedSensor, setSelectedSensor] = useState(null);
+
+
     useEffect(() => {
         console.log('Fetching reports...');
         context.getReports(context.device.id);
     }, []);
 
-    // Function to filter reports by date range
-    function filterReportsByDateRange(reports, range) {
+   
+    function filterReports(reports, range, sensor) {
         const now = new Date();
-        let filteredReports = [];
+        let filteredReports = reports;
 
+        
         switch (range) {
             case 'Today':
                 filteredReports = reports.filter(report =>
@@ -45,10 +48,15 @@ function ReportScreen(props) {
                 filteredReports = reports; 
         }
 
+        if (sensor) {
+            filteredReports = filteredReports.filter(report => report.sensor === sensor);
+        }
+    
+
         return filteredReports;
     }
 
-    const filteredReports = filterReportsByDateRange(context.reports || [], selectedRange);
+    const filteredReports = filterReports(context.reports || [], selectedRange, selectedSensor);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -67,12 +75,55 @@ function ReportScreen(props) {
                     { label: '1 Month Ago', value: '1 Month Ago' },
                 ]}
                 style={pickerSelectStyles}
-                placeholder={{ label: 'Select Date Range', value: 'All' }}
+                placeholder={{ label: 'Select Date Range' }}
+                value = {selectedRange}
             />
 
-            <ScrollView style={styles.body}>
+            <View style={styles.sensorSelection}>
+                <Pressable
+                    style={[
+                        styles.sensorCard,
+                        selectedSensor === null && styles.selectedCard, 
+                 ]}
+                onPress={() => setSelectedSensor(null)} 
+            >
+                <Text style={styles.sensorText}>All</Text>
+                </Pressable>
+
+                <Pressable
+                    style={[
+                        styles.sensorCard,
+                        selectedSensor === 'Ultrasonic' && styles.selectedCard,
+                    ]}
+                    onPress={()=> setSelectedSensor('Ultrasonic')}
+                >
+                    <Text style={styles.sensorText}>Feeder</Text>
+                </Pressable>
+
+                <Pressable
+                    style={[
+                        styles.sensorCard,
+                        selectedSensor === 'Temperature' && styles.selectedCard,
+                    ]}
+                    onPress={()=> setSelectedSensor('Temperature')}
+                >
+                    <Text style={styles.sensorText}>Temperature</Text>
+                </Pressable>
+
+                <Pressable
+                    style={[
+                        styles.sensorCard,
+                        selectedSensor === 'pH' && styles.selectedCard,
+                    ]}
+                    onPress={()=> setSelectedSensor('pH')}
+                >
+                    <Text style={styles.sensorText}>pH</Text>
+                </Pressable>
+            </View>      
+
+            <ScrollView style={{ marginBottom: 20 }}>
                 {filteredReports.length > 0 ? (
-                    filteredReports.sort((a, b) => a.created_at.localeCompare(b.created_at)).map((report, index) => (
+                    filteredReports.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((report, index) => (
                         <View key={index} style={styles.cardBody}>
                             <View style={styles.cardContent}>
                                 <Text style={styles.recentText}>
@@ -84,7 +135,7 @@ function ReportScreen(props) {
                         </View>
                     ))
                 ) : (
-                    <Text style={styles.noReportsText}>No reports available for this date range.</Text>
+                    <Text style={styles.noReportsText}>No reports available for this date range and sensor.</Text>
                 )}
             </ScrollView>
         </SafeAreaView>
@@ -95,23 +146,46 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        paddingHorizontal: 36,
+        paddingHorizontal: 36, 
     },
     headerText: {
         fontSize: 40,
         fontWeight: 'bold',
         paddingTop: 40,
     },
+    sensorSelection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap', 
+        marginVertical: 20,
+    },
+    selectedCard: {
+        backgroundColor: '#cce7ff',
+        borderColor: '#007bff', 
+    },
+    sensorCard: {
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 10,
+        paddingVertical: 15,
+        backgroundColor: '#f0f0f0',
+        width: '48%', 
+        marginBottom: 10, 
+        alignItems: 'center',
+        justifyContent: 'center', 
+        height: 50,
+    },
+    sensorText: {
+        fontSize: 16, 
+        fontWeight: 'bold',
+        textAlign: 'center', 
+    },
     cardBody: {
-        backgroundColor: '#f9f9f9',
-        borderRadius: 8,
-        padding: 16,
-        marginVertical: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 1,
-        elevation: 2,
+        borderWidth: 1,
+        borderRadius: 10,
+        marginVertical: 5,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
     },
     cardContent: {
         flexDirection: 'column',
@@ -130,12 +204,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginVertical: 20,
     },
-    scrollView: {
-        marginBottom: 200,
-    },
-    body: {
-        marginVertical: 5,
-    },
+   
 });
 
 const pickerSelectStyles = {
@@ -148,8 +217,13 @@ const pickerSelectStyles = {
         borderRadius: 8,
         color: 'black',
         paddingRight: 30,
-        marginVertical: 10,
+        marginVertical: 1,
+        textAlign: 'center',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
+    
+
 };
 
 export default ReportScreen;
