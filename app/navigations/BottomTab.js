@@ -4,14 +4,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../screens/HomeScreen';
 import ReportScreen from '../screens/ReportScreen';
 import ControlScreen from '../screens/ControlScreen';
-import NotificationScreen from '../screens/NotificationScreen';
-import ProfileScreen from '../screens/ProfileScreen';
 import { Ionicons } from '@expo/vector-icons';
 import ScheduleScreen from '../screens/ScheduleScreen';
 import ViewScheduleScreen from '../screens/ViewScheduleScreen';
 import AddScheduleScreen from '../screens/AddScheduleScreen';
 import { ApiContext } from '../../server/Api';
-import AddDeviceScreen from '../screens/AddDeviceScreen';
 import ViewDeviceScreen from '../screens/ViewDeviceScreen';
 
 const Tab = createBottomTabNavigator();
@@ -36,12 +33,12 @@ function BottomTab(props) {
 
                     // Report
                     if (e.data.state.index == 1) {
-                        context.getReports()
+                        context.getReports(context.device.id)
                     }
 
                     //Schedule
                     if (e.data.state.index == 3) {
-                        context.getSchedules()
+                        context.getSchedules(context.device.id)
                     }
                 },
             }}>
@@ -75,13 +72,6 @@ function BottomTab(props) {
                 tabPress: e => {
                     // context.getSchedules();
                 }
-            }}  
-            />
-            <Tab.Screen name="Notification" component={NotificationScreen} options={{
-                tabBarLabel: 'Notification',
-                tabBarIcon: ({color, size}) => (
-                    <Ionicons name='notifications' color={color} size={32}/>
-                )
             }}  
             />
             <Tab.Screen name="Settings" component={ViewDeviceScreen} options={{

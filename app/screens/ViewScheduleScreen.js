@@ -98,6 +98,7 @@ function ViewScheduleScreen(props) {
                     date.toLocaleTimeString('en-US', {hour12: false, hour: 'numeric', minute: 'numeric'}),
                     repeat,
                     timer,
+                    context.device.id,
                     props
                 )}>
                     <View style={styles.button}>

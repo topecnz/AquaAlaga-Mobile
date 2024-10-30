@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from '../screens/ProfileScreen';
+import NotificationScreen from "../screens/NotificationScreen";
 import { Ionicons } from '@expo/vector-icons';
 import { ApiContext } from '../../server/Api';
 import DeviceScreen from '../screens/DeviceScreen';
@@ -38,6 +39,13 @@ function BottomTabMain(props) {
                     <Ionicons name='home' color={color} size={32}/>
                 )
             }}/>
+            <Tab.Screen name="Notification" component={NotificationScreen} options={{
+                tabBarLabel: 'Notification',
+                tabBarIcon: ({color, size}) => (
+                    <Ionicons name='notifications' color={color} size={32}/>
+                )
+            }}  
+            />
             <Tab.Screen name="Profile" component={ProfileScreen} options={{
                 tabBarLabel: 'Profile',
                 tabBarIcon: ({color, size}) => (
