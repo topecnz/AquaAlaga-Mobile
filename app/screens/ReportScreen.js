@@ -14,7 +14,7 @@ function ReportScreen(props) {
 
     useEffect(() => {
         console.log('Fetching reports...');
-        context.getReports();
+        context.getReports(context.device.id);
     }, []);
 
    
