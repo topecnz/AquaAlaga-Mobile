@@ -12,7 +12,7 @@ function ReportScreen(props) {
     
     useEffect(() => {
         console.log('Fetching reports...');
-        context.getReports();
+        context.getReports(context.device.id);
     }, []);
 
     // Function to filter reports by date range
