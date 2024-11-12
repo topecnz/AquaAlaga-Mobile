@@ -47,7 +47,10 @@ export default function DeviceScreen(props) {
                         {(context.devices.length) ? (
                             context.devices.sort((a, b) => a.name.localeCompare(b.name)).map((item, index) => 
                                 <Pressable key={item.id} style={styles.cardBody} onPress={() => {
-                                    mqtt.subscribe(`/${item.id}/sensor`, item, onSelect)
+                                    mqtt.subscribe(`/${item.id}/sensor`, {
+                                        item:  item,
+                                        onSelect: onSelect,
+                                    })
                                 }}>
                                     <View style={{paddingHorizontal: 10}}>
                                         <Image

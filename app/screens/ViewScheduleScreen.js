@@ -6,9 +6,11 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
 import { ApiContext } from '../../server/Api';
+import { MqttContext } from '../../server/Mqtt';
 
 function ViewScheduleScreen(props) {
     const context = useContext(ApiContext);
+    const mqtt = useContext(MqttContext);
     const [name, setName] = useState(props.route.params.name);
     const [timer, setTimer] = useState(props.route.params.timer);
     const [isPickerShow, setIsPickerShow] = useState(false);
@@ -99,7 +101,8 @@ function ViewScheduleScreen(props) {
                     repeat,
                     timer,
                     context.device.id,
-                    props
+                    props,
+                    mqtt
                 )}>
                     <View style={styles.button}>
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Update</Text>
@@ -107,7 +110,8 @@ function ViewScheduleScreen(props) {
                 </Pressable>
                 <Pressable onPress={() => context.deleteSchedule(
                     props.route.params.id,
-                    props
+                    props,
+                    mqtt
                 )}>
                     <View style={styles.button}>
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Delete</Text>

@@ -1,4 +1,4 @@
-import React, { Component, createContext } from 'react';
+import React, { Component, createContext, useContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MqttClient, MqttEvent, MqttOptionsBuilder } from 'react-native-mqtt-clients';
 import { Buffer } from 'buffer';
@@ -27,7 +27,8 @@ class MqttProvider extends Component {
                 temp: 0,
                 feed: 0,
             },
-            isDeleted: false
+            isDeleted: false,
+            isDeviceSelected: false
         }
     }
     notif = async (message) => {
@@ -35,8 +36,9 @@ class MqttProvider extends Component {
           console.log('notifying:', message.id);
           await Notifications.scheduleNotificationAsync({
             content: {
-              title: 'New Message',
-              body: message.id, 
+              title: message.topic,
+              body: `${message.device_name}: ${message.message}`,
+              
             },
             trigger: null, 
           });
@@ -90,23 +92,33 @@ class MqttProvider extends Component {
         client.on(MqttEvent.CONNECTED, async () => {
             // called when client is connected
             console.log('Connected!')
-            try {
-                await client.subscribeAsync({
-                    topic: "/notification",
-                    qos: 0
-                }).then(() => {
-                    // this.notif({message: "Message"});
-                });
-            } catch (e) {
-                console.log(e)
-            }
+            // try {
+            //     await client.subscribeAsync({
+            //         topic: "/notification",
+            //         qos: 0
+            //     }).then(() => {
+            //         // this.notif({message: "Message"});
+            //     });
+            // } catch (e) {
+            //     console.log(e)
+            // }
+            this.subscribe("/notification");
         });
         client.on(MqttEvent.SUBSCRIBED, (topic) => {
         // called when client has subscribed to a topic
+            console.log(topic[0].includes("/sensor"));
+            if (topic[0].includes("/sensor")) {
+                console.log("true");
+                this.updateState(this, {isDeviceSelected: true})
+            }
             console.log('Subscribed ' + topic);
         });
         client.on(MqttEvent.UNSUBSCRIBED, (topic) => {
         // called when client has unsubscribed from a topic
+            console.log(topic[0].includes("/sensor"));
+            if (topic[0].includes("/sensor")) {
+                this.updateState(this, {isDeviceSelected: false})
+            }
             console.log('Unsubscribed ' + topic);
         });
         client.on(MqttEvent.DISCONNECTED, (topic) => {
@@ -125,18 +137,23 @@ class MqttProvider extends Component {
         }
     }
 
-    subscribe = async (topic, item, onSelect) => {
+    subscribe = async (topic, item = {}) => {
         try {
             await client.subscribeAsync(
             {
                 topic: topic,
                 qos: 0
             }).then(() => {
-                onSelect(true, item);
+                if (item.item) {
+                    console.log(item);
+                    item.onSelect(true, item.item);
+                }
             });
         } catch (e) {
             console.log(e)
-            onSelect(false, item);
+            if (item.item) {
+                item.onSelect(false, item.item);
+            }
         }
     }
 
@@ -210,6 +227,7 @@ class MqttProvider extends Component {
                 publish: this.publish,
                 data: this.state.data,
                 isDeleted: this.state.isDeleted,
+                isDeviceSelected: this.state.isDeviceSelected,
             }}>
                 {this.props.children}
             </MqttContext.Provider>
