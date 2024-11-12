@@ -4,10 +4,12 @@ import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ApiContext } from '../../server/Api';
+import { MqttContext } from '../../server/Mqtt';
 
 function ScheduleScreen(props) {
     // const [isEnabled, setIsEnabled] = useState(false);
     const context = useContext(ApiContext);
+    const mqtt = useContext(MqttContext);
     useEffect(() => {
         console.log('test')
         context.getSchedules(context.device.id)
@@ -35,7 +37,7 @@ function ScheduleScreen(props) {
                                             <Text style={styles.recentText}>{new Date("1970-01-01 "+item.time+":00").toLocaleTimeString('en-US', {hour12: true, hour: 'numeric', minute: 'numeric'})}</Text>
                                         </View>
                                         <View>
-                                            <Text style={styles.recentSubText}>{item.repeat}, {item.timer}s {index}</Text>
+                                            <Text style={styles.recentSubText}>{item.repeat}, {item.timer}s</Text>
                                         </View>
                                     </View>
                                     <View style={{position: "absolute", right: 0}}>
@@ -44,7 +46,7 @@ function ScheduleScreen(props) {
                                             thumbColor={item.is_enable ? '#fff' : '#f4f3f4'}
                                             ios_backgroundColor="#3e3e3e"
                                             onValueChange={() => {
-                                                context.toggleSchedule(item.id, props)
+                                                context.toggleSchedule(item.id, context.device.id, mqtt)
                                             }}
                                             value={item.is_enable}
                                         />

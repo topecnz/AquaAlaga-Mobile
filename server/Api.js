@@ -72,7 +72,7 @@ class ApiProvider extends Component {
         })
     }
 
-    updateSchedule = async (id, name, time, repeat, timer, device_id, props) => {
+    updateSchedule = async (id, name, time, repeat, timer, device_id, props, mqtt) => {
         instance.patch(`schedule?_id=${id}`, {
             name: name,
             time: time,
@@ -87,6 +87,7 @@ class ApiProvider extends Component {
             }
         }).then((response) => {
             if (response.data.code == 200) {
+                mqtt.publish(`/${device_id}/schedule`, "OK");
                 Alert.alert('Schedule Updated to Database!');
                 props.navigation.goBack();
             }
@@ -99,7 +100,7 @@ class ApiProvider extends Component {
         })
     }
 
-    deleteSchedule = async (id, props) => {
+    deleteSchedule = async (id, props, mqtt) => {
         instance.delete(`schedule?_id=${id}`, {}, {
             headers: {
                 "Content-Type": "application/json",
@@ -107,6 +108,7 @@ class ApiProvider extends Component {
             }
         }).then((response) => {
             if (response.data.code == 200) {
+                mqtt.publish(`/${device_id}/schedule`, "OK");
                 Alert.alert('Schedule Deleted to Database!');
                 props.navigation.goBack();
             }
@@ -116,7 +118,7 @@ class ApiProvider extends Component {
         })
     }
 
-    toggleSchedule = async (id, props) => {
+    toggleSchedule = async (id, device_id, mqtt) => {
         instance.put(`schedule?_id=${id}`, {}, {
             headers: {
                 "Content-Type": "application/json",
@@ -124,12 +126,12 @@ class ApiProvider extends Component {
             }
         }).then((response) => {
             if (response.data.code == 200) {
-                
+                mqtt.publish(`/${device_id}/schedule`, "OK");
             }
             else {
                 Alert.alert('Something went wrong!');
             }
-            this.getSchedules();
+            this.getSchedules(device_id);
         })
     }
 
