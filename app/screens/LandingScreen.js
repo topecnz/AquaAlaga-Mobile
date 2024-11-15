@@ -34,7 +34,7 @@ function LandingScreen(props) {
           <View>
             <Pressable onPress={() => props.navigation.navigate('Login')}>
               <View style={styles.button}>
-                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Login</Text>
+                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Get Started</Text>
               </View>
             </Pressable>
           </View>
