@@ -27,7 +27,6 @@ function ScheduleScreen(props) {
                     </View>
                 </Pressable>
                 <View style={styles.card}>
-                    <Text style={styles.cardTitle}>{context.device.name}</Text>
                     <ScrollView style={{marginBottom: 200}}>
                         {context.schedules.sort((a, b) => a.time.localeCompare(b.time)).map((item, index) => 
                             <Pressable key={item.id} style={styles.cardBody} onPress={() => props.navigation.navigate('View Schedule', {time: "1970-01-01 "+item.time+":00", timer: item.timer, repeat: item.repeat, name: item.name, id: item.id})}>
@@ -139,7 +138,7 @@ const styles = StyleSheet.create({
         marginVertical: 60
     },
     card: {
-        marginBottom: 32
+        marginBottom: 0
     },
     cardTitle: {
         fontSize: 28,

@@ -16,6 +16,9 @@ const BleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 function LinkDeviceScreen(props) {
     const context = useContext(ApiContext);
     const [type, setType] = useState('Indoor');
+    const [breed, setBreed] = useState('');
+    const [temp, setTemp] = useState('');
+    const [ph, setPh] = useState('');
     const [isLinkingDone, setIsLinkingDone] = useState(true);
     const [isSet, setIsSet] = useState(false);
     const [deviceName, setDeviceName] = useState(props.route.params.item.advertising.localName);
@@ -80,6 +83,12 @@ function LinkDeviceScreen(props) {
             return;
         }
 
+        if (breed.length > 16) {
+            Alert.alert('The fish breed maximum characters is 16.');
+            setIsLinkingDone(true);
+            return;
+        }
+
         BleManager.retrieveServices(props.route.params.item.id).then(
             (info) => {
                 BleManager.startNotification(info.id, info.services[2].uuid, info.characteristics[3].characteristic)
@@ -94,12 +103,16 @@ function LinkDeviceScreen(props) {
                 data = {
                     deviceName: deviceName,
                     type: type,
+                    breed: breed,
+                    temp: temp,
+                    ph: ph
+                    
                 }
                 
-                // Send device name
                 writeData(info, 'dn|'+ data.deviceName);    
-                // Send device type
-                writeData(info, 't|'+ data.type);    
+                writeData(info, 't|'+ data.type);
+                writeData(info, 'b|'+ data.breed);    
+                writeData(info, 'data|'+ data.temp + ":" + data.ph);    
 
             }
         )
@@ -168,6 +181,35 @@ function LinkDeviceScreen(props) {
                                     <Picker.Item label="Outdoor" value="Outdoor" />
                                 </Picker>
                             </View>
+                        </View>
+                        <View>
+                            <Text>Fish Breed</Text>
+                            <TextInput
+                                style={styles.input}
+                                onChangeText={setBreed}
+                                value={breed}
+                                placeholder='Fish Breed'
+                            />
+                        </View>
+                        <View>
+                            <Text>Temperature</Text>
+                            <TextInput
+                                style={styles.input}
+                                keyboardType='numeric'
+                                onChangeText={setTemp}
+                                value={temp}
+                                placeholder='Temperature'
+                            />
+                        </View>
+                        <View>
+                            <Text>pH Level</Text>
+                            <TextInput
+                                style={styles.input}
+                                keyboardType='numeric'
+                                onChangeText={setPh}
+                                value={ph}
+                                placeholder='pH Level'
+                            />
                         </View>
                         { (isLinkingDone) ? (
                                 <Pressable onPress={() => connectDevice()}>

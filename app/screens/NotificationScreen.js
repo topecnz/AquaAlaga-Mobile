@@ -1,11 +1,14 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable, ScrollView } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiContext } from '../../server/Api';
+import { Picker } from '@react-native-picker/picker';
+import moment from 'moment';
 
 function NotificationScreen(props) {
     const context = useContext(ApiContext);
+    const [device, setDevice] = useState("");
     return (
         <SafeAreaView style={styles.container}>
             <MainGradient/>
@@ -15,88 +18,46 @@ function NotificationScreen(props) {
             <View style={styles.body}>
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>{context.device.name}</Text>
-                    <Text style={styles.markText}>Mark all as read</Text>
+                    <View style={styles.gap}>
+                        <Text style={styles.labelTitle}>Device</Text>
+                        <View style={styles.picker}>
+                            <Picker
+                                selectedValue={device}
+                                onValueChange={(itemValue, itemIndex) => {
+                                        console.log(itemValue);
+                                        context.getNotifications(itemValue);
+                                        setDevice(itemValue);
+                                    }
+                                }>
+                                <Picker.Item label="-- Select Device --" value="" enabled={false}/>
+                                {context.devices.sort((a,b) => a.name.localeCompare(b.name)).map((item, index) =>
+                                    <Picker.Item key={item.id} label={item.name} value={item.id} />
+                                )}
+                                {/* <Picker.Item label="Indoor" value="Indoor" />
+                                <Picker.Item label="Outdoor" value="Outdoor" /> */}
+                            </Picker>
+                        </View>
+                    </View>
                     <ScrollView style={{marginBottom: 120}}>
-                        <View style={styles.cardBody}>
-                            <View>
-                                <Text style={styles.recentText}>Successful Feeding - 08:00 AM</Text>
+                        <Pressable onPress={() => context.deleteNotifications(device)}>
+                            <View style={styles.button}>
+                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Clear Notification</Text>
                             </View>
-                            <View>
-                                <Text style={styles.recentSubText}>2 hours ago</Text>
-                            </View>
-                        </View>
-                        <View style={styles.cardBody}>
-                            <View>
-                                <Text style={styles.recentText}>Successful Feeding - 08:00 AM</Text>
-                            </View>
-                            <View>
-                                <Text style={styles.recentSubText}>2 hours ago</Text>
-                            </View>
-                        </View>
-                        <View style={styles.cardBody}>
-                            <View>
-                                <Text style={styles.recentText}>Successful Feeding - 08:00 AM</Text>
-                            </View>
-                            <View>
-                                <Text style={styles.recentSubText}>2 hours ago</Text>
-                            </View>
-                        </View>
-                        <View style={styles.cardBody}>
-                            <View>
-                                <Text style={styles.recentText}>Successful Feeding - 08:00 AM</Text>
-                            </View>
-                            <View>
-                                <Text style={styles.recentSubText}>2 hours ago</Text>
-                            </View>
-                        </View>
-                        <View style={styles.cardBody}>
-                            <View>
-                                <Text style={styles.recentText}>Successful Feeding - 08:00 AM</Text>
-                            </View>
-                            <View>
-                                <Text style={styles.recentSubText}>2 hours ago</Text>
-                            </View>
-                        </View>
-                        <View style={styles.cardBody}>
-                            <View>
-                                <Text style={styles.recentText}>Successful Feeding - 08:00 AM</Text>
-                            </View>
-                            <View>
-                                <Text style={styles.recentSubText}>2 hours ago</Text>
-                            </View>
-                        </View>
-                        <View style={styles.cardBody}>
-                            <View>
-                                <Text style={styles.recentText}>Successful Feeding - 08:00 AM</Text>
-                            </View>
-                            <View>
-                                <Text style={styles.recentSubText}>2 hours ago</Text>
-                            </View>
-                        </View>
-                        <View style={styles.cardBody}>
-                            <View>
-                                <Text style={styles.recentText}>Successful Feeding - 08:00 AM</Text>
-                            </View>
-                            <View>
-                                <Text style={styles.recentSubText}>2 hours ago</Text>
-                            </View>
-                        </View>
-                        <View style={styles.cardBody}>
-                            <View>
-                                <Text style={styles.recentText}>Successful Feeding - 08:00 AM</Text>
-                            </View>
-                            <View>
-                                <Text style={styles.recentSubText}>2 hours ago</Text>
-                            </View>
-                        </View>
-                        <View style={styles.cardBody}>
-                            <View>
-                                <Text style={styles.recentText}>Successful Feeding - 08:00 AM</Text>
-                            </View>
-                            <View>
-                                <Text style={styles.recentSubText}>2 hours ago</Text>
-                            </View>
-                        </View>
+                        </Pressable>
+                        {context.notifications.sort((a, b) => a.created_at.localeCompare(b.created_at)).reverse().map((item, index) => 
+                            <Pressable key={item.id} style={styles.cardBody}>
+                                <View style={{flexDirection: "column"}}>
+                                    <View>
+                                        <View>
+                                            <Text style={styles.recentText}>{item.message}</Text>
+                                        </View>
+                                        <View>
+                                            <Text style={styles.recentSubText}>{moment(new Date(item.created_at)).fromNow()}</Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            </Pressable>
+                        )}
                     </ScrollView>
                 </View>
             </View>
@@ -119,7 +80,7 @@ const styles = StyleSheet.create({
         marginVertical: 60,
     },
     card: {
-        marginBottom: 32
+        marginBottom: 180
     },
     cardTitle: {
         fontSize: 28,
@@ -137,11 +98,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15
     },
     recentText: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: "bold"
     },
     recentSubText: {
-        fontSize: 16,
+        fontSize: 12,
         color: "grey"
     },
     buttonMargin: {
@@ -154,11 +115,24 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       alignItems: "center",
       borderRadius: 10,
+      marginBottom: 20
     },
     markText: {
         textAlign: "right",
         marginVertical: 5,
         color: "#0E79B4"
+    },
+    gap: {
+        marginVertical: 10
+    },
+    picker: {
+        borderWidth: 1,
+        borderRadius: 10,
+        marginTop: 5
+    },
+    labelTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
     }
 });
 

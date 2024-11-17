@@ -154,14 +154,18 @@ class ApiProvider extends Component {
         this.updateState(this, {device: data})
     }
 
-    updateDevice = async (device, name, type, setIsLoading) => {
+    updateDevice = async (device, name, type, breed, temp, ph, setIsLoading, updateDev) => {
         let data = {
             id: device.id,
             name: name,
             type: type,
             mac_address: device.mac_address,
             ip_address: device.ip_address,
+            fish_breed: breed,
+            temperature: parseInt(temp),
+            ph_level: parseInt(ph)
         }
+        console.log(data);
         instance.patch(`device?_id=${device.id}`, data, {
             headers: {
                 "Content-Type": "application/json",
@@ -170,6 +174,7 @@ class ApiProvider extends Component {
         }).then(
             (response) => {
                 if (response.data.code == 200) {
+                    updateDev();
                     this.setDevice(data);
                     this.getDevices();
                     setTimeout(() => {
@@ -192,7 +197,7 @@ class ApiProvider extends Component {
             }
         )}
 
-    deleteDevice = async (id, props, setIsLoading) => {
+    deleteDevice = async (id, props, setIsLoading, deleteDev) => {
         instance.delete(`device?_id=${id}`, {}, {
             headers: {
                 "Content-Type": "application/json",
@@ -202,6 +207,7 @@ class ApiProvider extends Component {
             (response) => {
                 if (response.data.code == 200) {
                     setTimeout(() => {
+                        deleteDev();
                         Alert.alert('Device has been deleted.');
                         setIsLoading(false);
                         props.navigation.reset({
@@ -220,6 +226,42 @@ class ApiProvider extends Component {
                 setIsLoading(false);
             }
         )
+    }
+
+    getNotifications = async (id) => {
+        instance.get(`notification?_id=${id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            this.updateState(this, {notifications: response.data})
+            // if (response.data.code == 200) {
+            //     mqtt.publish(`/${device_id}/schedule`, "OK");
+            //     Alert.alert('Schedule Deleted to Database!');
+            //     props.navigation.goBack();
+            // }
+            // else {
+            //     Alert.alert('Something went wrong!');
+            // }
+        })
+    }
+
+    deleteNotifications = async (id) => {
+        instance.delete(`notification?_id=${id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            if (response.data.code == 200) {
+                this.updateState(this, {notifications: []});
+                Alert.alert("Notification cleared!");
+            }
+            else {
+                Alert.alert("Something went wrong.");
+            }
+        })
     }
 
     login = async (username, password, props) => {
@@ -287,6 +329,9 @@ class ApiProvider extends Component {
                 updateDevice: this.updateDevice,
                 deleteDevice: this.deleteDevice,
                 isListingDone: this.state.isListingDone,
+                getNotifications: this.getNotifications,
+                notifications: this.state.notifications,
+                deleteNotifications: this.deleteNotifications,
             }}>
                 {this.props.children}
             </ApiContext.Provider>
