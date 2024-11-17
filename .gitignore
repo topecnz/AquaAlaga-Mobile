@@ -35,7 +35,7 @@ yarn-error.*
 *.tsbuildinfo
 
 .vscode
-android/
+# android/
 ios/
 provider
 .env
