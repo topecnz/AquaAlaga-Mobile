@@ -17,7 +17,11 @@ function ControlScreen(props) {
             <View style={styles.body}>
                 <View style={styles.card}>
                     <View style={styles.cardBody}>
-                        <View>
+                        <View style={styles.deviceOverview}>
+                            <Image
+                                source={require('../../assets/aquarium.png')} 
+                                style={styles.aquariumIcon}
+                            />
                             <Text style={styles.recentText}>{context.device.name}</Text>
                         </View>
                         <View>
@@ -99,6 +103,16 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       alignItems: "center",
       borderRadius: 10,
+    },
+    deviceOverview: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    aquariumIcon: {
+        width: 40,
+        height: 40,
+        marginRight: 10,
     },
 });
 

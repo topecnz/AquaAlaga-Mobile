@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
@@ -11,8 +11,18 @@ function ViewDeviceScreen(props) {
     const mqtt = useContext(MqttContext);
     const [deviceName, setDeviceName] = useState(context.device.name);
     const [deviceType, setDeviceType] = useState(context.device.type);
+    const [breed, setBreed] = useState(context.device.fish_breed);
+    const [temp, setTemp] = useState(context.device.temperature.toString());
+    const [ph, setPh] = useState(context.device.ph_level.toString());
     const [isLoading, setIsLoading] = useState(false);
     const [loadingMsg, setLoadingMsg] = useState('');
+
+    const deleteDevice = () => {
+        mqtt.publish(`/${context.device.id}/delete`, "DELETE")
+    }
+    const updateDevice = () => {
+        mqtt.publish(`/${context.device.id}/update`, "UPDATE")
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -23,8 +33,9 @@ function ViewDeviceScreen(props) {
             <View style={styles.body}>
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>Device Information</Text>
-                    <View style={{marginTop: 20}}>
+                    <ScrollView style={{marginTop: 20, marginBottom: 70}}>
                         <View>
+                            <Text style={styles.labelTitle}>Device Name</Text>
                             <TextInput
                                 style={styles.input}
                                 onChangeText={setDeviceName}
@@ -33,6 +44,7 @@ function ViewDeviceScreen(props) {
                             />
                         </View>
                         <View style={styles.gap}>
+                            <Text style={styles.labelTitle}>Type</Text>
                             <View style={styles.picker}>
                                 <Picker
                                     selectedValue={deviceType}
@@ -45,18 +57,58 @@ function ViewDeviceScreen(props) {
                             </View>
                         </View>
                         <View style={styles.gap}>
-                            <Text style={styles.recentText}>IP Address: {context.device.ip_address}</Text>    
+                            <Text style={styles.labelTitle}>Breed</Text>
+                            <TextInput
+                                style={styles.input}
+                                onChangeText={setBreed}
+                                value={breed}
+                                placeholder='Breed'
+                            />
                         </View>
                         <View style={styles.gap}>
-                            <Text style={styles.recentText}>MAC Address: {context.device.mac_address}</Text>    
+                            <Text style={styles.labelTitle}>Temperature</Text>
+                            <TextInput
+                                style={styles.input}
+                                keyboardType='numeric'
+                                onChangeText={setTemp}
+                                value={temp}
+                                placeholder='Temperature'
+                            />
                         </View>
+                        <View style={styles.gap}>
+                            <Text style={styles.labelTitle}>pH Level</Text>
+                            <TextInput
+                                style={styles.input}
+                                keyboardType='numeric'
+                                onChangeText={setPh}
+                                value={ph}
+                                placeholder='pH Level'
+                            />
+                        </View>
+                        {/* <View style={styles.gap}>
+                            <Text style={styles.recentText}>IP Address</Text>
+                            <Text style={styles.recentText}>{context.device.ip_address}</Text>
+                        </View> */}
+                        <View style={styles.gap}>
+                            <Text style={styles.recentText}>MAC Address</Text>
+                            <Text style={styles.recentText}>{context.device.mac_address}</Text>
+                        </View>
+                        {/* <View style={styles.gap}>
+                            <Text style={styles.recentText}>Breed: {context.device.fish_breed}</Text>    
+                        </View>
+                        <View style={styles.gap}>
+                            <Text style={styles.recentText}>Normal Temperature: {context.device.temperature}</Text>    
+                        </View>
+                        <View style={styles.gap}>
+                            <Text style={styles.recentText}>Normal pH: {context.device.ph_level}</Text>    
+                        </View> */}
                         { (!isLoading) ? 
                             (
                                 <View>
                                     <Pressable onPress={() => {
                                         setLoadingMsg("Updating...")
                                         setIsLoading(true);
-                                        context.updateDevice(context.device, deviceName, deviceType, setIsLoading)
+                                        context.updateDevice(context.device, deviceName, deviceType, breed, temp, ph, setIsLoading, updateDevice)
                                     }}>
                                         <View style={styles.button}>
                                             <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Update</Text>
@@ -67,7 +119,7 @@ function ViewDeviceScreen(props) {
                                             setIsLoading(true);
                                             // mqtt.subscribe(`/${context.device.id}/delete`);
                                             // mqtt.publish(`/${context.device.id}/delete`, 'DELETE');
-                                            context.deleteDevice(context.device.id, props, setIsLoading);
+                                            context.deleteDevice(context.device.id, props, setIsLoading, deleteDevice);
                                         }}>
                                         <View style={styles.button}>
                                             <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Delete</Text>
@@ -81,7 +133,7 @@ function ViewDeviceScreen(props) {
                                 </View>
                             )
                         }
-                    </View>
+                    </ScrollView>
                 </View>
             </View>
         </SafeAreaView>
@@ -117,7 +169,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15
     },
     recentText: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: "bold"
     },
     recentSubText: {
@@ -149,8 +201,12 @@ const styles = StyleSheet.create({
     picker: {
         borderWidth: 1,
         borderRadius: 10,
-        marginVertical: 5,
+        marginTop: 5
     },
+    labelTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
+    }
 });
 
 export default ViewDeviceScreen;

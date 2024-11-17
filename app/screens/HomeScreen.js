@@ -23,7 +23,7 @@ function HomeScreen(props) {
             </View>
             <View style={styles.body}>
                 <View style={styles.card}>
-                    <Text style={styles.cardTitle}>Recent Events</Text>
+                    <Text style={styles.cardTitle}>Recent Event</Text>
                     <View style={styles.cardBody}>
                         <View>
                             <Text style={styles.recentText}>Successful Feeding</Text>
@@ -43,7 +43,24 @@ function HomeScreen(props) {
                             />
                             <Text style={styles.recentText}>{context.device.name}</Text>
                         </View>
-                        <View>
+                        <View style={styles.gap}>
+                            <Text style={styles.recentText}>Device Type</Text>
+                            <Text style={styles.recentText2}>{context.device.type}</Text>
+                        </View>
+                        <View style={styles.gap}>
+                            <Text style={styles.recentText}>Fish Breed</Text>
+                            <Text style={styles.recentText2}>{context.device.fish_breed}</Text>
+                        </View>
+                        <View style={styles.gap}>
+                            <Text style={styles.recentText}>Temperature</Text>
+                            <Text style={styles.recentText2}>{context.device.temperature}C</Text>
+                        </View>
+                        <View style={styles.gap}>
+                            <Text style={styles.recentText}>pH Level</Text>
+                            <Text style={styles.recentText2}>{context.device.ph_level}</Text>
+                        </View>
+                        <View style={styles.gap}>
+                            <Text style={styles.recentText}>Current Data</Text>
                             <Text style={styles.recentSubText}>Temperature: {mqtt.data.temp}C</Text>
                             <Text style={styles.recentSubText}>pH Level: {mqtt.data.pH}</Text>
                         </View>
@@ -93,12 +110,19 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     recentText: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 20,
+        fontWeight: "bold"
+    },
+    recentText2: {
+        fontSize: 16,
+        // fontWeight: "bold"
     },
     recentSubText: {
         fontSize: 16,
         color: 'grey',
+    },
+    gap: {
+      marginVertical: 2  
     },
 });
 

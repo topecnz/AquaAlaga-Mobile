@@ -18,14 +18,14 @@ function ProfileScreen(props) {
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>Profile Info</Text>
                     <View style={{marginTop: 20}}>
-                        <View>
+                        {/* <View>
                             <TextInput
                                 style={styles.input}
                                 onChangeText={setUsername}
                                 value={username}
                                 placeholder='Username'
                             />
-                        </View>
+                        </View> */}
                         <View>
                             <TextInput
                                 style={styles.input}
