@@ -8,6 +8,8 @@ import DeviceScreen from '../screens/DeviceScreen';
 import BottomTabMain from './BottomTabMain';
 import AddDeviceScreen from '../screens/AddDeviceScreen';
 import LinkDeviceScreen from '../screens/LinkDeviceScreen';
+import FirstSetupScreen from '../screens/FirstSetupScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 
 const Stack = createStackNavigator();
 
@@ -17,9 +19,11 @@ function StackNav(props) {
             <Stack.Screen name="Landing" component={LandingScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="BottomTabMain" component={BottomTabMain} />
+            <Stack.Screen name="First Setup" component={FirstSetupScreen} />
             <Stack.Screen name="BottomTab" component={BottomTab} />
             <Stack.Screen name="Add Device" component={AddDeviceScreen} />
             <Stack.Screen name="Link Device" component={LinkDeviceScreen} />
+            <Stack.Screen name="Reset Password" component={ResetPasswordScreen} />
         </Stack.Navigator>
     );
 }

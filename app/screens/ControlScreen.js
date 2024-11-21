@@ -27,6 +27,7 @@ function ControlScreen(props) {
                         <View>
                             <Text style={styles.recentSubText}>Temperature: {mqtt.data.temp}C</Text>
                             <Text style={styles.recentSubText}>pH Level: {mqtt.data.pH}</Text>
+                            <Text style={styles.recentSubText}>Feeds Remaining: {mqtt.data.feed}%</Text>
                         </View>
                     </View>
                 </View>

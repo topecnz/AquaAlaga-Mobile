@@ -42,7 +42,9 @@ function LoginScreen(props) {
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Login</Text>
                     </View>
                 </Pressable>
-                <Text style={styles.forgotText}>Forgot Password</Text>
+                <Text onPress={() => {
+                    props.navigation.navigate('Reset Password')
+                }} style={styles.forgotText}>Forgot Password</Text>
             </View>
         </View>
     </View>

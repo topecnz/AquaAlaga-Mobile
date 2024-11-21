@@ -22,7 +22,7 @@ function HomeScreen(props) {
                 <Text style={styles.headerText}>{props.route.name}</Text>
             </View>
             <View style={styles.body}>
-                <View style={styles.card}>
+                {/* <View style={styles.card}>
                     <Text style={styles.cardTitle}>Recent Event</Text>
                     <View style={styles.cardBody}>
                         <View>
@@ -32,7 +32,7 @@ function HomeScreen(props) {
                             <Text style={styles.recentSubText}>08:00 AM - My First Fish Tank</Text>
                         </View>
                     </View>
-                </View>
+                </View> */}
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>Device Overview</Text>
                     <View style={styles.cardBody}>
@@ -63,6 +63,7 @@ function HomeScreen(props) {
                             <Text style={styles.recentText}>Current Data</Text>
                             <Text style={styles.recentSubText}>Temperature: {mqtt.data.temp}C</Text>
                             <Text style={styles.recentSubText}>pH Level: {mqtt.data.pH}</Text>
+                            <Text style={styles.recentSubText}>Feeds Remaining: {mqtt.data.feed}%</Text>
                         </View>
                     </View>
                 </View>
