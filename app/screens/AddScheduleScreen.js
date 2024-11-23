@@ -6,8 +6,10 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
 import { ApiContext } from '../../server/Api';
+import { MqttContext } from '../../server/Mqtt';
 
 function AddScheduleScreen(props) {
+    const mqtt = useContext(MqttContext);
     const context = useContext(ApiContext);
     const [name, setName] = useState('Schedule Name');
     const [timer, setTimer] = useState(1);
@@ -99,7 +101,8 @@ function AddScheduleScreen(props) {
                     repeat,
                     timer,
                     context.device.id,
-                    props
+                    props,
+                    mqtt
                     )}>
                     <View style={styles.button}>
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Add</Text>

@@ -55,7 +55,7 @@ class ApiProvider extends Component {
         })
     }
 
-    addSchedule = async (name, time, repeat, timer, id, props) => {
+    addSchedule = async (name, time, repeat, timer, id, props, mqtt) => {
         instance.post('schedule', {
             name: name,
             time: time,
@@ -70,6 +70,7 @@ class ApiProvider extends Component {
             }
         }).then((response) => {
             if (response.data.code == 200) {
+                mqtt.publish(`/${device_id}/schedule`, "OK");
                 Alert.alert('Schedule Added to Database!');
                 props.navigation.goBack();
             }
