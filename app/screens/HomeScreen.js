@@ -60,10 +60,9 @@ function HomeScreen(props) {
                             <Text style={styles.recentText2}>{context.device.ph_level}</Text>
                         </View>
                         <View style={styles.gap}>
-                            <Text style={styles.recentText}>Current Data</Text>
+                            <Text style={styles.recentText}>Current Status: {(!mqtt.data.temp && !mqtt.data.pH)? "Offline" : "Online"}</Text>
                             <Text style={styles.recentSubText}>Temperature: {mqtt.data.temp}C</Text>
                             <Text style={styles.recentSubText}>pH Level: {mqtt.data.pH}</Text>
-                            <Text style={styles.recentSubText}>Feeds Remaining: {mqtt.data.feed}%</Text>
                         </View>
                     </View>
                 </View>

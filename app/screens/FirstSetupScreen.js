@@ -1,9 +1,9 @@
-import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Alert } from 'react-native'
+import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Alert, Platform } from 'react-native'
 import React, { useContext, useState } from 'react'
 import { ApiContext } from '../../server/Api'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MainGradient from '../components/MainGradient';
-import { TextInput } from 'react-native-gesture-handler';
+import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-picker/picker';
 import PasswordValidate from 'react-native-password-validate-checklist';
 
@@ -20,99 +20,101 @@ export default function FirstSetupScreen(props) {
             <View>
                 <Text style={styles.headerText}>{props.route.name}</Text>
             </View>
-            <View style={styles.body}>
-                <View>
-                    <Text style={styles.labelTitle}>Password</Text>
-                    <TextInput
-                        style={styles.input}
-                        onChangeText={setPassword}
-                        value={password}
-                        placeholder='Enter New Password'
-                        secureTextEntry={true}
-                    />
-                </View>
-                <View style={styles.gap}>
-                    <Text style={styles.labelTitle}>Confirm Password</Text>
-                    <TextInput
-                        style={styles.input}
-                        onChangeText={setConfirmPassword}
-                        value={confirmPassword}
-                        placeholder='Enter Confirm Password'
-                        secureTextEntry={true}
-                    />
-                </View>
-                <View>
-                <PasswordValidate
-                    newPassword={password}
-                    confirmPassword={confirmPassword}
-                    validationRules={[
-                    {
-                        key: 'MIN_LENGTH',
-                        ruleValue: 9,
-                        label: 'Should contain more than 9 characters',
-                    },
-                    //   {
-                    //     key: 'MAX_LENGTH',
-                    //     ruleValue: 15,
-                    //     label: 'Should contain max of 15 characters',
-                    //   },
-                    {key: 'LOWERCASE_LETTER'},
-                    {key: 'UPPERCASE_LETTER'},
-                    {key: 'NUMERIC'},
-                    {key: 'PASSWORDS_MATCH'},
-                    {key: 'SPECIAL_CHARS'},
-                    ]}
-                        onPasswordValidateChange={validatedBoolean =>
-                        setValidated(validatedBoolean)
-                    }
-                />
-                </View>
-                <View style={styles.gap}>
-                    <Text style={styles.labelTitle}>Security Question</Text>
-                    <View style={styles.picker}>
-                        <Picker
-                            selectedValue={question}
-                            onValueChange={(itemValue, itemIndex) =>
-                                setQuestion(itemValue)
-                            }>
-                            <Picker.Item label="-- Select Question --" value="" enabled={false}/>
-                            {context.questions.map((item, index) => 
-                                <Picker.Item key={index} label={item} value={item}/>
-                            )
-
-                            }
-                        </Picker>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.body}>
+                <ScrollView keyboardShouldPersistTaps='handled'>
+                    <View>
+                        <Text style={styles.labelTitle}>Password</Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={setPassword}
+                            value={password}
+                            placeholder='Enter New Password'
+                            secureTextEntry={true}
+                        />
                     </View>
-                </View>
-                <View style={styles.gap}>
-                    <Text style={styles.labelTitle}>Answer</Text>
-                    <TextInput
-                        style={styles.input}
-                        onChangeText={setAnswer}
-                        value={answer}
-                        placeholder='Enter Answer'
-                    />
-                </View>
-                <View style={styles.gap}>
-                    <Pressable onPress={() => {
-                        console.log(validated, answer.length)
-                        if (!validated || !answer.length || !question.length) {
-                            Alert.alert("Error: Check your fields");
-                            return
+                    <View style={styles.gap}>
+                        <Text style={styles.labelTitle}>Confirm Password</Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={setConfirmPassword}
+                            value={confirmPassword}
+                            placeholder='Enter Confirm Password'
+                            secureTextEntry={true}
+                        />
+                    </View>
+                    <View>
+                    <PasswordValidate
+                        newPassword={password}
+                        confirmPassword={confirmPassword}
+                        validationRules={[
+                        {
+                            key: 'MIN_LENGTH',
+                            ruleValue: 9,
+                            label: 'Should contain more than 9 characters',
+                        },
+                        //   {
+                        //     key: 'MAX_LENGTH',
+                        //     ruleValue: 15,
+                        //     label: 'Should contain max of 15 characters',
+                        //   },
+                        {key: 'LOWERCASE_LETTER'},
+                        {key: 'UPPERCASE_LETTER'},
+                        {key: 'NUMERIC'},
+                        {key: 'PASSWORDS_MATCH'},
+                        {key: 'SPECIAL_CHARS'},
+                        ]}
+                            onPasswordValidateChange={validatedBoolean =>
+                            setValidated(validatedBoolean)
                         }
-                        context.firstSetup({
-                            id: context.account.id,
-                            password: password,
-                            security_question: question,
-                            security_answer: answer
-                        }, props)
-                    }}>
-                        <View style={styles.button}>
-                            <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Set</Text>
+                    />
+                    </View>
+                    <View style={styles.gap}>
+                        <Text style={styles.labelTitle}>Security Question</Text>
+                        <View style={styles.picker}>
+                            <Picker
+                                selectedValue={question}
+                                onValueChange={(itemValue, itemIndex) =>
+                                    setQuestion(itemValue)
+                                }>
+                                <Picker.Item label="-- Select Question --" value="" enabled={false}/>
+                                {context.questions.map((item, index) => 
+                                    <Picker.Item key={index} label={item} value={item}/>
+                                )
+
+                                }
+                            </Picker>
                         </View>
-                    </Pressable>
-                </View>
-            </View>
+                    </View>
+                    <View style={styles.gap}>
+                        <Text style={styles.labelTitle}>Answer</Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={setAnswer}
+                            value={answer}
+                            placeholder='Enter Answer'
+                        />
+                    </View>
+                    <View style={styles.gap}>
+                        <Pressable onPress={() => {
+                            console.log(validated, answer.length)
+                            if (!validated || !answer.length || !question.length) {
+                                Alert.alert("Error: Check your fields");
+                                return
+                            }
+                            context.firstSetup({
+                                id: context.account.id,
+                                password: password,
+                                security_question: question,
+                                security_answer: answer
+                            }, props)
+                        }}>
+                            <View style={styles.button}>
+                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Set</Text>
+                            </View>
+                        </Pressable>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     )
 }
