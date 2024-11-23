@@ -22,7 +22,7 @@ function HomeScreen(props) {
                 <Text style={styles.headerText}>{props.route.name}</Text>
             </View>
             <View style={styles.body}>
-                <View style={styles.card}>
+                {/* <View style={styles.card}>
                     <Text style={styles.cardTitle}>Recent Event</Text>
                     <View style={styles.cardBody}>
                         <View>
@@ -32,7 +32,7 @@ function HomeScreen(props) {
                             <Text style={styles.recentSubText}>08:00 AM - My First Fish Tank</Text>
                         </View>
                     </View>
-                </View>
+                </View> */}
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>Device Overview</Text>
                     <View style={styles.cardBody}>
@@ -60,7 +60,7 @@ function HomeScreen(props) {
                             <Text style={styles.recentText2}>{context.device.ph_level}</Text>
                         </View>
                         <View style={styles.gap}>
-                            <Text style={styles.recentText}>Current Data</Text>
+                            <Text style={styles.recentText}>Current Status: {(!mqtt.data.temp && !mqtt.data.pH)? "Offline" : "Online"}</Text>
                             <Text style={styles.recentSubText}>Temperature: {mqtt.data.temp}C</Text>
                             <Text style={styles.recentSubText}>pH Level: {mqtt.data.pH}</Text>
                         </View>

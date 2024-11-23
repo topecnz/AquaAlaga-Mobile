@@ -37,13 +37,14 @@ function ControlScreen(props) {
                     <View style={styles.cardBody}>
                         <Pressable style={styles.buttonMargin} onLongPress={() => {
                             mqtt.publish(`/${context.device.id}/remote`, "ON")
+                            console.log("test")
                         }}
                         onPressOut={() => {
                             mqtt.publish(`/${context.device.id}/remote`, "OFF")
                         }}
-                        >
-                            <View style={styles.button}>
-                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Hold</Text>
+                        disabled={(!mqtt.data.temp && !mqtt.data.pH) ? true : false}>
+                            <View style={(!mqtt.data.temp && !mqtt.data.pH) ? styles.buttonDisabled : styles.button}>
+                                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>{(!mqtt.data.temp && !mqtt.data.pH) ? "Offline" : "Hold"}</Text>
                             </View>
                         </Pressable>
                     </View>
@@ -100,6 +101,14 @@ const styles = StyleSheet.create({
       height: 50,
       width: "auto",
       backgroundColor: "#0E79B4",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 10,
+    },
+    buttonDisabled: {
+      height: 50,
+      width: "auto",
+      backgroundColor: "#666",
       justifyContent: "center",
       alignItems: "center",
       borderRadius: 10,

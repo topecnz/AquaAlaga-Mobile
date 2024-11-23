@@ -60,7 +60,6 @@ export default function DeviceScreen(props) {
                                     <View style={{padding: 10}}>
                                         <Text style={styles.recentText}>{item.name}</Text>
                                         <Text style={styles.recentSubText}>Type: {item.type}</Text>
-                                        <Text style={styles.recentSubText}>Status: Online</Text>
                                     </View>
                                 </Pressable>
                             )

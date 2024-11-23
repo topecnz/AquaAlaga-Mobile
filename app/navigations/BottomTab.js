@@ -94,7 +94,7 @@ function ScheduleNavigator(props) {
     return (
         <Stack.Navigator initialRouteName='Schedules' screenOptions={{headerShown: false}} screenListeners={{}}>
             <Stack.Screen name="Schedules"  component={ScheduleScreen}/>
-            <Stack.Screen name="View Schedule"  component={ViewScheduleScreen} />
+            <Stack.Screen name="Schedule Details"  component={ViewScheduleScreen} />
             <Stack.Screen name="Add Schedule"  component={AddScheduleScreen} />
         </Stack.Navigator>
     )
