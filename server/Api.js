@@ -22,7 +22,17 @@ class ApiProvider extends Component {
             schedInterval: null,
             isLoggedOn: false,
             device: {},
-            isListingDone: false
+            isListingDone: false,
+            questions: [
+                "What is your mother's maiden name?",
+                "What is the name of your favorite pet?",
+                "What high school did you attend?",
+                "What is your favorite book?",
+                "What was the name of your first car?",
+                "What is the name of the road you grew up on?",
+                "What was your favorite food as a child?",
+                "Where did you meet your spouse?",
+            ]
         }
         this.data = []
     }
@@ -45,7 +55,7 @@ class ApiProvider extends Component {
         })
     }
 
-    addSchedule = async (name, time, repeat, timer, id, props) => {
+    addSchedule = async (name, time, repeat, timer, id, props, mqtt) => {
         instance.post('schedule', {
             name: name,
             time: time,
@@ -60,6 +70,7 @@ class ApiProvider extends Component {
             }
         }).then((response) => {
             if (response.data.code == 200) {
+                mqtt.publish(`/${device_id}/schedule`, "OK");
                 Alert.alert('Schedule Added to Database!');
                 props.navigation.goBack();
             }
@@ -271,7 +282,7 @@ class ApiProvider extends Component {
                 if (this.state.isLoggedOn) {
                     props.navigation.reset({
                         index: 0,
-                        routes: [{ name: 'BottomTabMain' }]
+                        routes: [{ name: (this.state.account.is_first_time) ? 'First Setup' : 'BottomTabMain' }]
                     })
                 }
                 else {
@@ -288,6 +299,115 @@ class ApiProvider extends Component {
                 routes: [{ name: 'Landing' }]
             });
             console.log('Logged out ' + this.state.isLoggedOn)
+        })
+    }
+
+    firstSetup = async (data, props) => {
+        instance.post("first_setup", data, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            console.log(response.data);
+            if (response.data.code == 200) {
+                Alert.alert("Done!");
+                props.navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'BottomTabMain' }]
+                })
+            }
+            else {
+                Alert.alert("Something went wrong.");
+            }
+        }).catch((e) => {
+            Alert.alert("Something went wrong.", e)
+        })
+    }
+
+    findUsername = async (username, setUserId, setQuestion) => {
+        instance.get(`find?username=${username}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+            }).then((response) => {
+                if (response.data.code == 200) {
+                    setUserId(response.data.id)
+                    instance.get(`security?_id=${response.data.id}`, {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        }
+                    }).then((response) => {
+                        console.log(response.data)
+                        setQuestion(response.data.security_question)
+                    })
+                }
+                else {
+                    Alert.alert("Username not found.");
+                }
+            }).catch((e) => {
+                Alert.alert("Something went wrong.", e)
+            })
+    }
+
+    securityCheck = async (data, setFound) => {
+        instance.post('securityanswer', data, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            if (response.data.code == 200) {
+                setFound(true)
+            } else {
+                Alert.alert("Incorrect Answer")
+            }
+        }).catch((e) => {
+            Alert.alert("Something went wrong", e)
+        })
+    }
+
+    resetPassword = async (data, props) => {
+        instance.put('reset', data, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            if (response.data.code == 200) {
+                props.navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }]
+                })
+                Alert.alert("New password has been changed!")
+            } else {
+                Alert.alert("Something went wrong")
+            }
+        }).catch((e) => {
+            Alert.alert("Something went wrong", e)
+        })
+    }
+
+    changePassword = async (data, props) => {
+        instance.put('changepass', data, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            if (response.data.code == 200) {
+                props.navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'BottomTabMain' }]
+                })
+                Alert.alert("New password has been changed!")
+            } else {
+                Alert.alert("Wrong Current Password")
+            }
+        }).catch((e) => {
+            Alert.alert("Something went wrong", e)
         })
     }
 
@@ -332,6 +452,12 @@ class ApiProvider extends Component {
                 getNotifications: this.getNotifications,
                 notifications: this.state.notifications,
                 deleteNotifications: this.deleteNotifications,
+                questions: this.state.questions,
+                firstSetup: this.firstSetup,
+                findUsername: this.findUsername,
+                securityCheck: this.securityCheck,
+                resetPassword: this.resetPassword,
+                changePassword: this.changePassword,
             }}>
                 {this.props.children}
             </ApiContext.Provider>

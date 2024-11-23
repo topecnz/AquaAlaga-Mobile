@@ -46,7 +46,9 @@ function LoginScreen(props) {
                             <Text style={styles.buttonText}>Login</Text>
                         </View>
                     </Pressable>
-                    <Text style={styles.forgotText}>Forgot Password</Text>
+                    <Text onPress={() => {
+                    props.navigation.navigate('Reset Password')
+                }} style={styles.forgotText}>Forgot Password</Text>
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>

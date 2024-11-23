@@ -29,7 +29,7 @@ function ScheduleScreen(props) {
                 <View style={styles.card}>
                     <ScrollView style={{marginBottom: 200}}>
                         {context.schedules.sort((a, b) => a.time.localeCompare(b.time)).map((item, index) => 
-                            <Pressable key={item.id} style={styles.cardBody} onPress={() => props.navigation.navigate('View Schedule', {time: "1970-01-01 "+item.time+":00", timer: item.timer, repeat: item.repeat, name: item.name, id: item.id})}>
+                            <Pressable key={item.id} style={styles.cardBody} onPress={() => props.navigation.navigate('Schedule Details', {time: "1970-01-01 "+item.time+":00", timer: item.timer, repeat: item.repeat, name: item.name, id: item.id})}>
                                 <View style={{flexDirection: "column"}}>
                                     <View>
                                         <View>
