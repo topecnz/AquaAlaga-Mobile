@@ -70,7 +70,7 @@ class ApiProvider extends Component {
             }
         }).then((response) => {
             if (response.data.code == 200) {
-                mqtt.publish(`/${device_id}/schedule`, "OK");
+                mqtt.publish(`/${id}/schedule`, "OK");
                 Alert.alert('Schedule Added to Database!');
                 props.navigation.goBack();
             }
@@ -119,7 +119,7 @@ class ApiProvider extends Component {
             }
         }).then((response) => {
             if (response.data.code == 200) {
-                mqtt.publish(`/${device_id}/schedule`, "OK");
+                mqtt.publish(`/${id}/schedule`, "OK");
                 Alert.alert('Schedule Deleted to Database!');
                 props.navigation.goBack();
             }
