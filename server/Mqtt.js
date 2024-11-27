@@ -2,15 +2,17 @@ import React, { Component, createContext, useContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MqttClient, MqttEvent, MqttOptionsBuilder } from 'react-native-mqtt-clients';
 import { Buffer } from 'buffer';
-import * as Notifications from "expo-notifications";    
+import * as Notifications from "expo-notifications";
+// import { EXPO_PUBLIC_MQTT_URL, EXPO_PUBLIC_MQTT_USERNAME, EXPO_PUBLIC_MQTT_PASSWORD } from "@env";
+import Constants from 'expo-constants';
 
 export const MqttContext = createContext();
 
 const config = new MqttOptionsBuilder()
-  .uri('tcp://'+ process.env.EXPO_PUBLIC_MQTT_URL +':1883')
+  .uri('tcp://'+ Constants.expoConfig.extra.env.MQTT_URL +':1883')
   .clientId("aquaalaga_" + Math.random().toString(16).substring(2, 8))
-  .username(process.env.EXPO_PUBLIC_MQTT_USERNAME)
-  .password(process.env.EXPO_PUBLIC_MQTT_PASSWORD)
+  .username(Constants.expoConfig.extra.env.MQTT_USERNAME)
+  .password(Constants.expoConfig.extra.env.MQTT_PASSWORD)
   .autoReconnect(true)
   .build();
 
@@ -131,9 +133,6 @@ class MqttProvider extends Component {
         } catch (e) {
         // handle error
             console.log('MQTT broker error.')
-            setTimeout(() => {
-                this.onConnect();
-            }, 3000)
         }
     }
 
