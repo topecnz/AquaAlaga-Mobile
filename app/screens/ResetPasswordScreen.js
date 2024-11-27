@@ -39,6 +39,10 @@ export default function ResetPasswordScreen(props) {
                             </View>
                             <View style={styles.gap}>
                             <Pressable onPress={() => {
+                                    if (!username) {
+                                        Alert.alert("Please enter username.")
+                                        return;
+                                    }
                                     context.findUsername(username, setUserId, setQuestion)
                                 }}>
                                     <View style={styles.button}>

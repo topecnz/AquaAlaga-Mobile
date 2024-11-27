@@ -2,11 +2,13 @@ import React, { Component, createContext } from 'react';
 import { useState } from 'react';
 import axios from "axios";
 import { Alert } from 'react-native';
+// import { EXPO_PUBLIC_BASE_URL } from '@env';
+import Constants from 'expo-constants';
 
 export const ApiContext = createContext();
 
 const instance = axios.create({
-    baseURL: process.env.EXPO_PUBLIC_BASE_URL,
+    baseURL: Constants.expoConfig.extra.env.BASE_URL,
     timeout: 1000,
 });
 
@@ -52,6 +54,8 @@ class ApiProvider extends Component {
     getReports = async (id) => {
         instance.get(`report?_id=${id}`).then((response) => {
             this.updateState(this, {reports: response.data})
+        }).catch((e) => {
+            Alert.alert("Connection Lost. Please try again.")
         })
     }
 
@@ -80,6 +84,8 @@ class ApiProvider extends Component {
             else {
                 Alert.alert('Something went wrong!');
             }
+        }).catch((e) => {
+            Alert.alert("Connection Lost. Please try again.")
         })
     }
 
@@ -108,6 +114,8 @@ class ApiProvider extends Component {
             else {
                 Alert.alert('Something went wrong!');
             }
+        }).catch((e) => {
+            Alert.alert("Connection Lost. Please try again.")
         })
     }
 
@@ -126,6 +134,8 @@ class ApiProvider extends Component {
             else {
                 Alert.alert('Something went wrong!');
             }
+        }).catch((e) => {
+            Alert.alert("Connection Lost. Please try again.")
         })
     }
 
@@ -143,6 +153,8 @@ class ApiProvider extends Component {
                 Alert.alert('Something went wrong!');
             }
             this.getSchedules(device_id);
+        }).catch((e) => {
+            Alert.alert("Connection Lost. Please try again.")
         })
     }
 
@@ -255,6 +267,8 @@ class ApiProvider extends Component {
             // else {
             //     Alert.alert('Something went wrong!');
             // }
+        }).catch((e) => {
+            Alert.alert("Connection Lost. Please try again.")
         })
     }
 
@@ -272,6 +286,8 @@ class ApiProvider extends Component {
             else {
                 Alert.alert("Something went wrong.");
             }
+        }).catch((e) => {
+            Alert.alert("Connection Lost. Please try again.")
         })
     }
 
@@ -289,6 +305,8 @@ class ApiProvider extends Component {
                     Alert.alert('Invalid credentials.')
                 }
             });
+        }).catch((e) => {
+            Alert.alert("Connection Lost. Please try again.")
         })
     }
 
@@ -326,12 +344,9 @@ class ApiProvider extends Component {
     }
 
     findUsername = async (username, setUserId, setQuestion) => {
-        instance.get(`find?username=${username}`, {
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-            }).then((response) => {
+        console.log("testing", username)
+        instance.get(`find?username=${username}`).then((response) => {
+                console.log("pending")
                 if (response.data.code == 200) {
                     setUserId(response.data.id)
                     instance.get(`security?_id=${response.data.id}`, {
@@ -342,6 +357,8 @@ class ApiProvider extends Component {
                     }).then((response) => {
                         console.log(response.data)
                         setQuestion(response.data.security_question)
+                    }).catch((e) => {
+                        Alert.alert("Something went wrong.", e)
                     })
                 }
                 else {
