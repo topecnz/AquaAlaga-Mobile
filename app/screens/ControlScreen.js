@@ -25,8 +25,39 @@ function ControlScreen(props) {
                             <Text style={styles.recentText}>{context.device.name}</Text>
                         </View>
                         <View>
-                            <Text style={styles.recentSubText}>Temperature: {mqtt.data.temp}C</Text>
-                            <Text style={styles.recentSubText}>pH Level: {mqtt.data.pH}</Text>
+                            {(!mqtt.data.temp && !mqtt.data.pH)? (
+                                <Text style={styles.recentText}>Offline</Text>
+                            ) : (
+                                <View>
+                                    <View style={styles.recentData}>
+                                        <Text style={styles.recentSubText}>Temperature: {mqtt.data.temp}C</Text>
+                                        { (context.device.temperature + 3 >= mqtt.data.temp
+                                            && context.device.temperature - 3 <= mqtt.data.temp)? (
+                                                <View>
+                                                    <Text style={styles.normalStatus}>NORMAL</Text>
+                                                </View>
+                                            ) : (
+                                                (context.device.temperature + 3 < mqtt.data.temp)? (
+                                                    <View>
+                                                        <Text style={styles.highStatus}>HIGH</Text>
+                                                    </View>
+                                                ):(
+                                                    <View>
+                                                        <Text style={styles.lowStatus}>LOW</Text>
+                                                    </View>
+                                                )
+                                            )
+
+                                        }
+                                    </View>
+                                    <View style={styles.recentData}>
+                                        <Text style={styles.recentSubText}>pH Level: {mqtt.data.pH}</Text>
+                                        <Text style={styles.normalStatus}>NORMAL</Text>
+                                    </View>
+                                </View>
+                            )
+
+                            }
                         </View>
                     </View>
                 </View>
@@ -122,6 +153,40 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         marginRight: 10,
+    },
+    recentData: {
+        flexDirection: "row",
+        marginVertical: 1
+    },
+    normalStatus: {
+        fontWeight: "600",
+        color: "white",
+        marginHorizontal: 5,
+        paddingHorizontal: 8,
+        backgroundColor: "green",
+        borderRadius: 10,
+        borderColor: "black",
+        borderWidth: 1
+    },
+    highStatus: {
+        fontWeight: "600",
+        color: "white",
+        marginHorizontal: 5,
+        paddingHorizontal: 8,
+        backgroundColor: "red",
+        borderRadius: 10,
+        borderColor: "black",
+        borderWidth: 1
+    },
+    lowStatus: {
+        fontWeight: "600",
+        color: "black",
+        marginHorizontal: 5,
+        paddingHorizontal: 8,
+        backgroundColor: "yellow",
+        borderRadius: 10,
+        borderColor: "black",
+        borderWidth: 1
     },
 });
 
