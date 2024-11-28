@@ -212,7 +212,13 @@ function LinkDeviceScreen(props) {
                             />
                         </View>
                         { (isLinkingDone) ? (
-                                <Pressable onPress={() => connectDevice()}>
+                                <Pressable onPress={() => {
+                                    if (!ph || !temp || !type || !deviceName || !breed) {
+                                        Alert.alert("Please check fields!");
+                                        return;
+                                    }
+                                    connectDevice();
+                                }}>
                                     <View style={styles.button}>
                                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Link</Text>                                
                                     </View>
