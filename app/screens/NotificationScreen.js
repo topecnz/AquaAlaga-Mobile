@@ -17,7 +17,6 @@ function NotificationScreen(props) {
             </View>
             <View style={styles.body}>
                 <View style={styles.card}>
-                    <Text style={styles.cardTitle}>{context.device.name}</Text>
                     <View style={styles.gap}>
                         <Text style={styles.labelTitle}>Device</Text>
                         <View style={styles.picker}>
@@ -44,7 +43,8 @@ function NotificationScreen(props) {
                                 <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Clear Notification</Text>
                             </View>
                         </Pressable>
-                        {context.notifications.sort((a, b) => a.created_at.localeCompare(b.created_at)).reverse().map((item, index) => 
+                        {(context.notifications.length)? (
+                            context.notifications.sort((a, b) => a.created_at.localeCompare(b.created_at)).reverse().map((item, index) => 
                             <Pressable key={item.id} style={styles.cardBody}>
                                 <View style={{flexDirection: "column"}}>
                                     <View>
@@ -57,7 +57,12 @@ function NotificationScreen(props) {
                                     </View>
                                 </View>
                             </Pressable>
-                        )}
+                        )) : (
+                            <View style={styles.indicateView}>
+                                <Text style={styles.recentText}>No devices are found.</Text>
+                            </View>
+                        )
+                        }
                     </ScrollView>
                 </View>
             </View>
@@ -133,7 +138,11 @@ const styles = StyleSheet.create({
     labelTitle: {
         fontSize: 20,
         fontWeight: "bold",
-    }
+    },
+    indicateView: {
+        justifyContent: "center",
+        alignItems: "center",
+    },
 });
 
 export default NotificationScreen;
