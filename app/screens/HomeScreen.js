@@ -86,13 +86,13 @@ function HomeScreen(props) {
                                     </View>
                                     <View style={styles.recentData}>
                                         <Text style={styles.recentSubText}>pH Level: {mqtt.data.pH}</Text>
-                                        { (context.device.ph_level + 3 >= mqtt.data.pH
-                                            && context.device.ph_level - 3 <= mqtt.data.pH)? (
+                                        { (context.device.ph_level + 2 >= mqtt.data.pH
+                                            && context.device.ph_level - 2 <= mqtt.data.pH)? (
                                                 <View>
                                                     <Text style={styles.normalStatus}>NORMAL</Text>
                                                 </View>
                                             ) : (
-                                                (context.device.ph_level + 3 < mqtt.data.pH)? (
+                                                (context.device.ph_level + 2 < mqtt.data.pH)? (
                                                     <View>
                                                         <Text style={styles.highStatus}>HIGH</Text>
                                                     </View>

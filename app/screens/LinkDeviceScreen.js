@@ -17,8 +17,8 @@ function LinkDeviceScreen(props) {
     const context = useContext(ApiContext);
     const [type, setType] = useState('Indoor');
     const [breed, setBreed] = useState('');
-    const [temp, setTemp] = useState('');
-    const [ph, setPh] = useState('');
+    const [temp, setTemp] = useState('27');
+    const [ph, setPh] = useState('7');
     const [isLinkingDone, setIsLinkingDone] = useState(true);
     const [isSet, setIsSet] = useState(false);
     const [deviceName, setDeviceName] = useState(props.route.params.item.advertising.localName);
@@ -191,25 +191,40 @@ function LinkDeviceScreen(props) {
                                 placeholder='Fish Breed'
                             />
                         </View>
-                        <View>
+                        <View style={styles.gap}>
                             <Text>Temperature</Text>
-                            <TextInput
-                                style={styles.input}
-                                keyboardType='numeric'
-                                onChangeText={setTemp}
-                                value={temp}
-                                placeholder='Temperature'
-                            />
+                            <View style={styles.picker}>
+                                <Picker
+                                    selectedValue={temp}
+                                    onValueChange={(itemValue, itemIndex) =>
+                                        setTemp(itemValue)
+                                    }>
+                                    <Picker.Item label="23" value="23" />
+                                    <Picker.Item label="24" value="24" />
+                                    <Picker.Item label="25" value="25" />
+                                    <Picker.Item label="26" value="26" />
+                                    <Picker.Item label="27" value="27" />
+                                    <Picker.Item label="28" value="28" />
+                                    <Picker.Item label="29" value="29" />
+                                    <Picker.Item label="30" value="30" />
+                                    <Picker.Item label="21" value="21" />
+                                    <Picker.Item label="32" value="32" />
+                                </Picker>
+                            </View>
                         </View>
-                        <View>
-                            <Text>pH Level</Text>
-                            <TextInput
-                                style={styles.input}
-                                keyboardType='numeric'
-                                onChangeText={setPh}
-                                value={ph}
-                                placeholder='pH Level'
-                            />
+                        <View style={styles.gap}>
+                            <Text>Temperature</Text>
+                            <View style={styles.picker}>
+                                <Picker
+                                    selectedValue={ph}
+                                    onValueChange={(itemValue, itemIndex) =>
+                                        setPh(itemValue)
+                                    }>
+                                    <Picker.Item label="6" value="6" />
+                                    <Picker.Item label="7" value="7" />
+                                    <Picker.Item label="8" value="8" />
+                                </Picker>
+                            </View>
                         </View>
                         { (isLinkingDone) ? (
                                 <Pressable onPress={() => {
