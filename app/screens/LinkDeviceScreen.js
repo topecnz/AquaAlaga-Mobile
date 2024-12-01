@@ -207,7 +207,7 @@ function LinkDeviceScreen(props) {
                                     <Picker.Item label="28" value="28" />
                                     <Picker.Item label="29" value="29" />
                                     <Picker.Item label="30" value="30" />
-                                    <Picker.Item label="21" value="21" />
+                                    <Picker.Item label="31" value="31" />
                                     <Picker.Item label="32" value="32" />
                                 </Picker>
                             </View>
