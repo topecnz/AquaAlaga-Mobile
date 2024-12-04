@@ -2,6 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import LandingScreen from '../screens/LandingScreen';
+import SignupScreen from '../screens/SignupScreen';
 import LoginScreen from '../screens/LoginScreen';
 import BottomTab from './BottomTab';
 import DeviceScreen from '../screens/DeviceScreen';
@@ -17,6 +18,7 @@ function StackNav(props) {
     return (
         <Stack.Navigator initialRouteName='Landing' screenOptions={{headerShown: false}}>
             <Stack.Screen name="Landing" component={LandingScreen} />
+            <Stack.Screen name="Signup" component={SignupScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="BottomTabMain" component={BottomTabMain} />
             <Stack.Screen name="First Setup" component={FirstSetupScreen} />

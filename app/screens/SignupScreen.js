@@ -1,19 +1,55 @@
 import React, { useContext, useState } from 'react';
-import { StyleSheet, Text, View, Image, Pressable, TextInput, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable, TextInput, KeyboardAvoidingView, ScrollView, Platform, Alert } from 'react-native';
 import LandingGradient from '../components/LandingGradient';
 import { ApiContext } from '../../server/Api';
 
-function LoginScreen(props) {
+function SignupScreen(props) {
     const context = useContext(ApiContext);
     const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [otp, setOtp] = useState('');
+    const [isVerified, setIsVerified] = useState(false);
+
+    const handleSignup = () => {
+        console.log("Signup initiated for email:", email);
+        fetch('http://192.168.56.1:8000/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                username: username,
+                password: password,
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Alert.alert("Signup successful! Please check your email for verification.");
+                    setIsVerified(true);
+                } else {
+                    Alert.alert("Signup failed:", data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error during signup:", error);
+                Alert.alert("An error occurred. Please try again.");
+            });
+    };
+
+    const handleVerifyOtp = () => {
+        console.log("OTP verification initiated for OTP:", otp);
+        // Add OTP verification logic here
+    };
 
     return (
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-            <LandingGradient/>
+            <LandingGradient />
             <ScrollView contentContainerStyle={styles.containerInner} keyboardShouldPersistTaps='handled'>
                 <View style={styles.titleContainer}>
                     <View style={styles.logoShadow}>
@@ -28,6 +64,13 @@ function LoginScreen(props) {
                 <View style={styles.fields}>
                     <TextInput
                         style={styles.input}
+                        onChangeText={setEmail}
+                        value={email}
+                        placeholder='Email Address'
+                        keyboardType="email-address"
+                    />
+                    <TextInput
+                        style={styles.input}
                         onChangeText={setUsername}
                         value={username}
                         placeholder='Username'
@@ -39,21 +82,29 @@ function LoginScreen(props) {
                         placeholder='Password'
                         secureTextEntry={true}
                     />
+                    {isVerified ? (
+                        <Pressable onPress={handleVerifyOtp}>
+                            <View style={styles.button}>
+                                <Text style={styles.buttonText}>Verify OTP</Text>
+                            </View>
+                        </Pressable>
+                    ) : (
+                        <Pressable onPress={handleSignup}>
+                            <View style={styles.buttonSignup}>
+                                <Text style={styles.buttonText}>Signup</Text>
+                            </View>
+                        </Pressable>
+                    )}
                 </View>
                 <View>
-                    <Pressable onPress={() => context.login(username, password, props)}>
-                        <View style={styles.button}>
-                            <Text style={styles.buttonText}>Login</Text>
-                        </View>
-                    </Pressable>
-                    <Text onPress={() => {
-                    props.navigation.navigate('Reset Password')
-                }} style={styles.forgotText}>Forgot Password</Text>
-                </View>
-                <View>
-                    <Text onPress={() => {
-                    props.navigation.navigate('Signup')
-                }} style={styles.signupText}>Don't have an account? Sign Up</Text>
+                    <Text
+                        onPress={() => {
+                            props.navigation.navigate('Login');
+                        }}
+                        style={styles.signupText}
+                    >
+                        Have an account? Login
+                    </Text>
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
@@ -89,12 +140,13 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 44,
     },
-    button: {
+    buttonSignup: {
         height: 50,
         backgroundColor: "#0E79B4",
         justifyContent: "center",
         alignItems: "center",
         borderRadius: 10,
+        marginTop: 20,
     },
     buttonText: {
         color: "#FFFFFF",
@@ -119,9 +171,9 @@ const styles = StyleSheet.create({
     },
     signupText: {
         textAlign: "center",
-        marginVertical: 10,
+        marginVertical: 5,
         color: "#0E79B4",
     },
 });
 
-export default LoginScreen;
+export default SignupScreen;

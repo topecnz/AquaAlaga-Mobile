@@ -449,6 +449,7 @@ class ApiProvider extends Component {
             <ApiContext.Provider value={{
                 schedules: this.state.schedules,
                 getSchedules: this.getSchedules,
+                signup: this.signup,
                 login: this.login,
                 logout: this.logout,
                 isLoggedOn: this.state.isLoggedOn,
