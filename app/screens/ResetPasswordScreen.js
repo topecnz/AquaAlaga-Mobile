@@ -29,12 +29,12 @@ export default function ResetPasswordScreen(props) {
                     (
                         <View>
                             <View>
-                                <Text style={styles.labelTitle}>Find Username</Text>
+                                <Text style={styles.labelTitle}>Your Email Address</Text>
                                 <TextInput
                                     style={styles.input}
                                     onChangeText={setUsername}
                                     value={username}
-                                    placeholder='Username'
+                                    placeholder='Email Address'
                                 />
                             </View>
                             <View style={styles.gap}>
@@ -46,7 +46,7 @@ export default function ResetPasswordScreen(props) {
                                     context.findUsername(username, setUserId, setQuestion)
                                 }}>
                                     <View style={styles.button}>
-                                        <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Find</Text>
+                                        <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Verify</Text>
                                     </View>
                                 </Pressable>
                             </View>
