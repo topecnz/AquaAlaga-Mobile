@@ -9,10 +9,10 @@ import Constants from 'expo-constants';
 export const MqttContext = createContext();
 
 const config = new MqttOptionsBuilder()
-  .uri('tcp://'+ Constants.expoConfig.extra.env.MQTT_URL +':1883')
+  .uri('tcp://aquaalaga.topecnz.net:1883')
   .clientId("aquaalaga_" + Math.random().toString(16).substring(2, 8))
-  .username(Constants.expoConfig.extra.env.MQTT_USERNAME)
-  .password(Constants.expoConfig.extra.env.MQTT_PASSWORD)
+  .username("aquaalaga")
+  .password("IsdaIsSafe1234!")
   .autoReconnect(true)
   .build();
 

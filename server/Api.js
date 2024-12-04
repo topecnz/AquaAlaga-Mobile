@@ -8,7 +8,7 @@ import Constants from 'expo-constants';
 export const ApiContext = createContext();
 
 const instance = axios.create({
-    baseURL: Constants.expoConfig.extra.env.BASE_URL,
+    baseURL: "http://aquaalaga.topecnz.net/",
     timeout: 1000,
 });
 

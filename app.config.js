@@ -42,12 +42,6 @@ module.exports = {
       ]
   ],
   extra: {
-    env: {
-        BASE_URL: "http://192.168.137.159:8000/",
-        MQTT_URL: "192.168.137.159",
-        MQTT_USERNAME: "aquaalaga",
-        MQTT_PASSWORD: "IsdaIsSafe4321"
-    },
     eas: {
         "projectId": "c456562d-87ab-4a29-a888-f363924b605e"
     }
