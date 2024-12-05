@@ -8,7 +8,7 @@ import Constants from 'expo-constants';
 export const ApiContext = createContext();
 
 const instance = axios.create({
-    baseURL: "http://aquaalaga.topecnz.net/",
+    baseURL: "https://aquaalaga.topecnz.net/",
     timeout: 1000,
 });
 
@@ -160,9 +160,9 @@ class ApiProvider extends Component {
 
     getDevices = async () => {
         this.updateState(this, {isListingDone: false});
-        
+        console.log(this.state.account.id);
         setTimeout(() => {
-            instance.get('device').then((response) => {
+            instance.get(`device?_id=${this.state.account.id}`).then((response) => {
                 this.updateState(this, {devices: response.data})
                 this.updateState(this, {isListingDone: true});
             },
