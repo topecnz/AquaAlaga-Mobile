@@ -84,18 +84,12 @@ const requestFineLocation = async (props) => {
     await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADVERTISE,
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
     ]).then(
         (granted) => {
             if (granted['android.permission.ACCESS_FINE_LOCATION']
                 && granted['android.permission.ACCESS_COARSE_LOCATION']
-                && granted['android.permission.BLUETOOTH_SCAN']
-                && granted['android.permission.BLUETOOTH_ADVERTISE']
-                && granted['android.permission.BLUETOOTH_CONNECT']
                 === 'granted') {
-                props.navigation.navigate('Add Device');
+                props.navigation.navigate('Connect to Wifi');
             } else {
                 // Permission denied
                 Alert.alert('Access Denied. Please go to settings to enable permissions.')

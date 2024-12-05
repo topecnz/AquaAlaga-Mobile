@@ -7,147 +7,68 @@ import { ApiContext } from '../../server/Api';
 import axios from 'axios';
 import WifiManager from "react-native-wifi-reborn";
 import TetheringManager from '@react-native-tethering/wifi';
-import BleManager from "react-native-ble-manager";
 import { Buffer } from 'buffer';
-
-const BleManagerModule = NativeModules.BleManager;
-const BleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
 function LinkDeviceScreen(props) {
     const context = useContext(ApiContext);
     const [type, setType] = useState('Indoor');
-    const [breed, setBreed] = useState('');
+    const [breed, setBreed] = useState('Fish');
     const [temp, setTemp] = useState('27');
     const [ph, setPh] = useState('7');
     const [isLinkingDone, setIsLinkingDone] = useState(true);
-    const [isSet, setIsSet] = useState(false);
-    const [deviceName, setDeviceName] = useState(props.route.params.item.advertising.localName);
+    const [deviceName, setDeviceName] = useState("AA-V001");
+    const [url, setUrl] = useState(props.route.params.item.url);
 
     useEffect(() => {
-        if (!isSet) {
-            BleManagerEmitter.addListener('BleManagerDidUpdateValueForCharacteristic', ({value, peripheral, characteristic, service}) => {
-                // Display notification message
-    
-                console.log(value);
-                value = Buffer.from(value).toString('utf-8')
-                console.log(value);
-    
-                if (value == 'true') {
-                    disconnect();
-                    Alert.alert('Success!');
-                } else if (value == 'existed') {
-                    Alert.alert('Device name already existed.')
-                } else if (value == 'failed_request') {
-                    Alert.alert('Linking device into the server failed. Please try again.')
-                } else {
-                    Alert.alert('Please try again.')
-                }
-
-                setIsLinkingDone(true);
-              });
-            console.log('Listener activated.');
-            setIsSet(true);
-        }
+        // testing only
+        // axios.get(`${url}/scan`).then(() => {
+        //     Alert.alert("Test Scanned");
+        // })
         return () => {
             disconnect();
         }
     }, [])
 
     const disconnect = async () => {
-        BleManagerEmitter.removeAllListeners('BleManagerDiscoverPeripheral');
-        BleManagerEmitter.removeAllListeners('BleManagerStopScan');
-        // BleManagerEmitter.removeAllListeners('BleManagerConnectPeripheral');
-        // BleManagerEmitter.removeAllListeners('BleManagerDisconnectPeripheral');
-        BleManagerEmitter.removeAllListeners('BleManagerDidUpdateValueForCharacteristic')
-        BleManager.disconnect(props.route.params.item.id).then(
-            () => {
-                console.log('Disconnected.');
-                props.navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'BottomTabMain' }]
-                });
-            },
-            (e) => {
-                console.log(e);
-            }
-        )
+        console.log("Cleaning up...");
+
+        WifiManager.disconnect().then(() => {
+            console.log("Disconnected");
+        }, (e) => {
+            Alert.alert(e);
+        })
     }
 
     const connectDevice = async () => {
         setIsLinkingDone(false);
-
-        // Validate
-        if (deviceName.length > 16) {
-            Alert.alert('The device name maximum characters is 16.');
-            setIsLinkingDone(true);
-            return;
-        }
-
-        if (breed.length > 16) {
-            Alert.alert('The fish breed maximum characters is 16.');
-            setIsLinkingDone(true);
-            return;
-        }
-
-        BleManager.retrieveServices(props.route.params.item.id).then(
-            (info) => {
-                BleManager.startNotification(info.id, info.services[2].uuid, info.characteristics[3].characteristic)
-                    .then(() => {
-                    // Display confirmation message
-                    console.log(`Subscribed to ${info.id} - ${info.services[2].uuid} - ${info.characteristics[3].characteristic}`);
-                    })
-                    .catch((err) => {
-                    // Update error message
-                        Alert.alert(err.message)
-                    });
-                data = {
-                    deviceName: deviceName,
-                    type: type,
-                    breed: breed,
-                    temp: temp,
-                    ph: ph
-                    
-                }
-                
-                writeData(info, 'dn|'+ data.deviceName);    
-                writeData(info, 't|'+ data.type);
-                writeData(info, 'b|'+ data.breed);    
-                writeData(info, 'data|'+ data.temp + ":" + data.ph);    
-
+        axios.post(`${url}/link`, {
+            account_id: context.account.id,
+            name: deviceName,
+            type: type,
+            breed: breed,
+            temp: temp,
+            ph: ph
+        }, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
             }
-        )
-
-        const writeData = async (info, data) => {
-            BleManager.write(info.id, info.services[2].uuid, info.characteristics[3].characteristic, Buffer.from(data).toJSON().data)
-                .then(() => {
-                    console.log("Write success");
-                })
-                .catch((error) => {
-                    console.log("Write failed", error);
+        }).then((r) => {
+            if (r.data.code == 200) {
+                Alert.alert("Success!")
+                props.navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'BottomTabMain' }]
                 });
-        }
-
-        const readData = async (info) => {
-            let res = null;
-            BleManager.read(info.id, info.services[2].uuid, info.characteristics[3].characteristic)
-                .then((data) => {
-                    res = Buffer.from(data).toString();
-                    console.log("Read " + res);
-                    BleManager.disconnect(info.id).then(
-                        () => {
-                            console.log('Disconnected.');
-                        },
-                        (e) => {
-                            console.log(e);
-                        }
-                    )
-                })
-                .catch((error) => {
-                    console.log("Read failed", error);
-                });
-
-            return (res.length) ? true : false;
-        }
+            } else if (r.data.code == 409) {
+                Alert.alert('Device name already existed.')
+            } else {
+                Alert.alert("Something went wrong! Try again.");
+            }
+            setIsLinkingDone(true);
+        }, (e) => {
+            Alert.alert("Something went wrong! Try again.");
+        })
     }
 
     return (
