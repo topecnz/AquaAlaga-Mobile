@@ -191,7 +191,11 @@ class MqttProvider extends Component {
     }
     
     notifRequest = async () => {
-        await Notifications.requestPermissionsAsync();
+        const { status } = await Notifications.getPermissionsAsync();
+        if (status !== 'granted') {
+            await Notifications.requestPermissionsAsync();
+        }
+        
         Notifications.setNotificationHandler({
           handleNotification: async () => ({
             shouldShowAlert: true,

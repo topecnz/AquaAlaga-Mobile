@@ -10,6 +10,7 @@ import AddDeviceScreen from '../screens/AddDeviceScreen';
 import LinkDeviceScreen from '../screens/LinkDeviceScreen';
 import FirstSetupScreen from '../screens/FirstSetupScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
+import ScanWifiScreen from '../screens/ScanWifiScreen';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +23,7 @@ function StackNav(props) {
             <Stack.Screen name="First Setup" component={FirstSetupScreen} />
             <Stack.Screen name="BottomTab" component={BottomTab} />
             <Stack.Screen name="Add Device" component={AddDeviceScreen} />
+            <Stack.Screen name="Connect to Wifi" component={ScanWifiScreen} />
             <Stack.Screen name="Link Device" component={LinkDeviceScreen} />
             <Stack.Screen name="Reset Password" component={ResetPasswordScreen} />
         </Stack.Navigator>

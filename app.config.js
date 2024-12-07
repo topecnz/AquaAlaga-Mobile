@@ -24,7 +24,11 @@ module.exports = {
         "android.permission.BLUETOOTH_SCAN",
         "android.permission.BLUETOOTH_ADVERTISE",
         "android.permission.BLUETOOTH_CONNECT",
-        "android.permission.SCHEDULE_EXACT_ALARM"
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.CHANGE_WIFI_STATE",
+        "android.permission.CHANGE_NETWORK_STATE",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.ACCESS_NETWORK_STATE"
       ]
   },
   plugins: [
