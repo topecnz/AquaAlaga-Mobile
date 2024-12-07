@@ -68,6 +68,7 @@ function LinkDeviceScreen(props) {
             setIsLinkingDone(true);
         }, (e) => {
             Alert.alert("Something went wrong! Try again.");
+            setIsLinkingDone(true);
         })
     }
 

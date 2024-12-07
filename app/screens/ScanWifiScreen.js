@@ -16,7 +16,8 @@ export default function ScanWifiScreen(props) {
   const [password, setPassword] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [ssidName, setssidName] = useState('');
-  const [url, setUrl] = useState("http://192.168.4.1:8000")
+  const [url, setUrl] = useState("http://192.168.4.1:8000");
+  const [isWifiConnected, setIsWifiConnected] = useState(false);
 
   useEffect(() => {
     checkCurrentSSID();
@@ -81,7 +82,8 @@ export default function ScanWifiScreen(props) {
   }
 
   const connectWifi = async () => {
-    console.log("Connecting....")
+    setIsWifiConnected(true)
+    Alert.alert("Connecting....")
     var data = {
       ssid: ssidName,
       password: password
@@ -98,22 +100,34 @@ export default function ScanWifiScreen(props) {
           // ToastAndroid.show("Connected to Local Network!", ToastAndroid.LONG)
           setUrl(r.data.url);
           Alert.alert(r.data.url);
+          setIsWifiConnected(false);
           props.navigation.navigate('Link Device', {item: {
             name: ssidName,
             url: r.data.url
           }});
         }, (e) => {
           ToastAndroid.show("Connection failed. Please try again.", ToastAndroid.LONG);
+          setIsWifiConnected(false);
+          WifiManager.connectToProtectedSSID("AA-V001", "", false, false).then(() => {
+              ToastAndroid.show("Connected to Local Network!", ToastAndroid.LONG)
+              setIsConnected(true);
+              scanWifi();
+          }, (e) => {
+            ToastAndroid.show("Connection failed. Please try again.", ToastAndroid.LONG);
+          })
         })
-        setPassword('');
+        setPassword('');        
       }
       else {
         Alert.alert("Connection Failed")
+        setPassword('');
+        setIsWifiConnected(false);
         scanWifi();
       }
-      setModalVisible(false);
     }).catch((e) => {
       Alert.alert(e);
+      setIsWifiConnected(false);
+      setPassword('');
     })
 
     
@@ -221,16 +235,27 @@ export default function ScanWifiScreen(props) {
                 onChangeText={setPassword}
                 value={password} />
               <View style={styles.buttonContainer}>
-                <Pressable onPress={() => { console.log('Password: ' + password); connectWifi();}}>
-                    <View style={styles.button}>
-                        <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20, padding: 1 }}>OK</Text>
-                    </View>
-                </Pressable>
-                <Pressable onPress={() => {setModalVisible(false); setssidName('');}}>
-                    <View style={styles.button}>
-                        <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20, padding: 1 }}>Cancel</Text>
-                    </View>
-                </Pressable>
+                { (!isWifiConnected) ? (
+                  <View>
+                    <Pressable onPress={() => { console.log('Password: ' + password); connectWifi();}}>
+                        <View style={styles.button}>
+                            <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20, padding: 1 }}>OK</Text>
+                        </View>
+                    </Pressable>
+                    <Pressable onPress={() => {setModalVisible(false); setssidName('');}}>
+                        <View style={styles.button}>
+                            <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20, padding: 1 }}>Cancel</Text>
+                        </View>
+                    </Pressable>
+                      </View> 
+                    ) : (
+                      <View style={{marginVertical: 30, justifyContent: "center", alignItems: "center"}}>
+                        <ActivityIndicator size="large" color="blue"/>
+                        <Text style={{fontSize: 20, fontWeight: "bold"}}>Connecting...</Text>
+                      </View>
+                    )
+
+                }
               </View>
             </View>
           </View>
