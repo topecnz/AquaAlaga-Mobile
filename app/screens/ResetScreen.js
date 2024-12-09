@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Alert } from 'react-native'
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { ApiContext } from '../../server/Api'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MainGradient from '../components/MainGradient';
@@ -7,16 +7,16 @@ import { TextInput } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-picker/picker';
 import PasswordValidate from 'react-native-password-validate-checklist';
 
-export default function ResetPasswordScreen(props) {
+export default function ResetScreen(props) {
     const context = useContext(ApiContext)
-    const [username, setUsername] = useState('')
-    const [userId, setUserId] = useState('')
-    const [answer, setAnswer] = useState('')
-    const [question, setQuestion] = useState('')
-    const [found, setFound] = useState(false)
+    const [email, setEmail] = useState('');
+    const [userId, setUserId] = useState('');
+    const [code, setCode] = useState('');
+    const [isSent, setIsSent] = useState(false);
+    const [found, setFound] = useState(false);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [validated, setValidated] = useState(false)
+    const [validated, setValidated] = useState(false);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -29,21 +29,25 @@ export default function ResetPasswordScreen(props) {
                     (
                         <View>
                             <View>
-                                <Text style={styles.labelTitle}>Find Username</Text>
+                                <Text style={styles.labelTitle}>Enter your email</Text>
                                 <TextInput
                                     style={styles.input}
-                                    onChangeText={setUsername}
-                                    value={username}
-                                    placeholder='Username'
+                                    onChangeText={setEmail}
+                                    value={email}
+                                    placeholder='Enter Email'
+                                    keyboardType='email-address'
                                 />
                             </View>
                             <View style={styles.gap}>
                             <Pressable onPress={() => {
-                                    if (!username) {
-                                        Alert.alert("Please enter username.")
+                                    if (!email) {
+                                        Alert.alert("Please enter email.")
+                                        return;
+                                    } else if (!/\S+@\S+\.\S+/.test(email)) {
+                                        Alert.alert("Error: Email must be in a valid format");
                                         return;
                                     }
-                                    context.findUsername(username, setUserId, setQuestion)
+                                    context.findEmail(email, setUserId, setIsSent);
                                 }}>
                                     <View style={styles.button}>
                                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Find</Text>
@@ -58,32 +62,37 @@ export default function ResetPasswordScreen(props) {
                 {(userId.length && !found) ? 
                 (
                     <View>
-                            <View>
-                                <Text style={styles.labelTitle}>Security Question</Text>
-                                <Text style={styles.recentSubText}>{question}</Text>
-                            </View>
-                            <View style={styles.gap}>
-                                <Text style={styles.labelTitle}>Security Answer</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    onChangeText={setAnswer}
-                                    value={answer}
-                                    placeholder='Answer'
-                                />
-                            </View>
-                            <View style={styles.gap}>
-                            <Pressable onPress={() => {
-                                    context.securityCheck({
-                                        id: userId,
-                                        security_answer: answer
-                                    }, setFound)
-                                }}>
-                                    <View style={styles.button}>
-                                        <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Confirm</Text>
-                                    </View>
-                                </Pressable>
-                            </View>
+                        <View style={styles.gap}>
+                            <Text style={{fontSize: 18}}>Your reset code has been sent to {email}. Please check your mailbox.</Text>
                         </View>
+                        <View>
+                            <Text style={styles.labelTitle}>Verification Code</Text>
+                            <TextInput
+                                style={styles.input}
+                                onChangeText={setCode}
+                                value={code}
+                                placeholder='Enter Code'
+                                keyboardType='numeric'
+                            />
+                        </View>
+                        
+                        <View style={styles.gap}>
+                            <Pressable onPress={() => {
+                                context.post_reset(userId, code, setFound)
+                            }}>
+                                <View style={styles.button}>
+                                    <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Reset</Text>
+                                </View>
+                            </Pressable>
+                            <Pressable onPress={() => {
+                                context.reset(userId, isSent, setIsSent);
+                            }}>
+                                <View style={styles.button}>
+                                    <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Resend Code</Text>
+                                </View>
+                            </Pressable>
+                        </View>
+                    </View>
                 ) : (null)
                 }
                 {(found) ?
@@ -209,6 +218,7 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       alignItems: "center",
       borderRadius: 10,
+      marginVertical: 3,
     },
     deviceOverview: {
         flexDirection: 'row',

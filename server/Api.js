@@ -2,14 +2,12 @@ import React, { Component, createContext } from 'react';
 import { useState } from 'react';
 import axios from "axios";
 import { Alert } from 'react-native';
-// import { EXPO_PUBLIC_BASE_URL } from '@env';
-import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const ApiContext = createContext();
 
 const instance = axios.create({
     baseURL: "https://aquaalaga.topecnz.net/",
-    timeout: 1000,
 });
 
 class ApiProvider extends Component {
@@ -21,6 +19,7 @@ class ApiProvider extends Component {
             schedules: [],
             notifications: [],
             reports: [],
+            checkers: [],
             schedInterval: null,
             isLoggedOn: false,
             device: {},
@@ -292,36 +291,68 @@ class ApiProvider extends Component {
     }
 
     login = async (username, password, props) => {
-        instance.get('login', { params: { username: username, password: password } }).then((response) => {
-            this.setState({isLoggedOn: response.data.access, account: response.data.data}, () => {
+        instance.get(`login?username=${username}&password=${password}`).then((response) => {
+            console.log(response.data)
+            this.setState({isLoggedOn: response.data.access, account: response.data.data}, async () => {
                 console.log('Checking.... '+ this.state.isLoggedOn + ' ' +  this.state.account.id)
+                
                 if (this.state.isLoggedOn) {
-                    props.navigation.reset({
-                        index: 0,
-                        routes: [{ name: (this.state.account.is_first_time) ? 'First Setup' : 'BottomTabMain' }]
-                    })
+                    try {
+                        await AsyncStorage.setItem('account', JSON.stringify(response.data.data)).then(() => {
+                            props.navigation.reset({
+                                index: 0,
+                                routes: [{ name: (!this.state.account.is_verified) ? 'Email Verification' : 'BottomTabMain' }]
+                            })
+                        });
+                    } catch (e) {
+                        
+                    }
                 }
                 else {
                     Alert.alert('Invalid credentials.')
                 }
             });
-        }).catch((e) => {
+        }, (e) => {
+            console.log(e)
             Alert.alert("Connection Lost. Please try again.")
         })
     }
 
     logout = async (props) => {
-        this.setState({isLoggedOn: false}, () => {
-            props.navigation.reset({
-                index: 0,
-                routes: [{ name: 'Landing' }]
-            });
-            console.log('Logged out ' + this.state.isLoggedOn)
+        this.setState({isLoggedOn: false}, async () => {
+            try {
+                await AsyncStorage.setItem('account', JSON.stringify(false)).then(() =>{
+                    console.log('Logged out ' + this.state.isLoggedOn)
+                    props.navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'Login' }]
+                    });
+                });
+            } catch (e) {
+                console.log(e)
+            }
         })
     }
 
-    firstSetup = async (data, props) => {
-        instance.post("first_setup", data, {
+    checker = async () => {
+        instance.get("checker").then((r) => {
+            this.updateState(this, {checkers: r.data});
+        }, () => {
+            Alert.alert("Not loaded");
+        })
+    }
+
+    session = async (data, props) => {
+        this.setState({account: data}, async () => {
+            props.navigation.reset({
+                index: 0,
+                routes: [{ name: (!this.state.account.is_verified) ? 'Email Verification' : 'BottomTabMain' }]
+            })
+        })
+    }
+
+    signup = async (data, props) => {
+        instance.post("signup", data, {
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
@@ -329,11 +360,15 @@ class ApiProvider extends Component {
         }).then((response) => {
             console.log(response.data);
             if (response.data.code == 200) {
-                Alert.alert("Done!");
+                Alert.alert("You are now registered!");
                 props.navigation.reset({
                     index: 0,
-                    routes: [{ name: 'BottomTabMain' }]
+                    routes: [{ name: 'Login' }]
                 })
+            } else if (response.data.code == 409) {
+                Alert.alert("Error: username or email is already taken.");
+                // reload userlist
+                this.checker();
             }
             else {
                 Alert.alert("Something went wrong.");
@@ -343,46 +378,96 @@ class ApiProvider extends Component {
         })
     }
 
-    findUsername = async (username, setUserId, setQuestion) => {
-        console.log("testing", username)
-        instance.get(`find?username=${username}`).then((response) => {
-                console.log("pending")
-                if (response.data.code == 200) {
-                    setUserId(response.data.id)
-                    instance.get(`security?_id=${response.data.id}`, {
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
-                        }
-                    }).then((response) => {
-                        console.log(response.data)
-                        setQuestion(response.data.security_question)
-                    }).catch((e) => {
-                        Alert.alert("Something went wrong.", e)
-                    })
-                }
-                else {
-                    Alert.alert("Username not found.");
-                }
-            }).catch((e) => {
-                Alert.alert("Something went wrong.", e)
-            })
-    }
+    verify = async (id, isSent, setIsSent) =>{
+        instance.get(`verify?id=${id}`).then((r) => {
+            if (isSent) {
+                Alert.alert("Verification code has been resent!");
+            } else {
+                setIsSent(true);
+            }
+        }, () => {
+            Alert.alert("Something went wrong!");
+        });
+    } 
 
-    securityCheck = async (data, setFound) => {
-        instance.post('securityanswer', data, {
+    post_verify = async (id, code, props) => {
+        console.log(code);
+        instance.post("verify", {
+            id: id,
+            verification_code: parseInt(code)
+        }, {
             headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
-        }).then((response) => {
-            if (response.data.code == 200) {
-                setFound(true)
+        }).then(async (r) => {
+            if (r.data.code == 200) {
+                try {
+                    account_data = this.state.account;
+                    account_data.is_verified = true;
+                    console.log(account_data);
+                    await AsyncStorage.setItem('account', JSON.stringify(account_data)).then(() => {
+                        Alert.alert("Your email is verified! Welcome to AquaAlaga.")
+                        props.navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'BottomTabMain' }]
+                        })
+                    });
+                } catch (e) {
+                    Alert.alert("Try again");
+                }
             } else {
-                Alert.alert("Incorrect Answer")
+                Alert.alert("Incorrect Code");
             }
-        }).catch((e) => {
-            Alert.alert("Something went wrong", e)
+        }, (e) => {
+            Alert.alert("Something went wrong!");
+        })
+    }
+
+    reset = async (id, isSent, setIsSent) => {
+        instance.get(`reset?id=${id}`).then((r) => {
+            if (isSent) {
+                Alert.alert("Verification code has been resent!");
+            } else {
+                setIsSent(true);
+            }
+        }, () => {
+            Alert.alert("Something went wrong!");
+        });
+    }
+
+    post_reset = async (id, code, setFound) => {
+        console.log(code);
+        instance.post("reset", {
+            id: id,
+            reset_code: parseInt(code)
+        }, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then(async (r) => {
+            if (r.data.code == 200) {
+                setFound(true);
+            } else {
+                Alert.alert("Incorrect Code");
+            }
+        }, (e) => {
+            Alert.alert("Something went wrong!");
+        })
+    }
+
+    findEmail = async (email, setUserId, setIsSent) => {
+        instance.get(`find?email=${email}`).then((r) => {
+            if (r.data.code == 200) {
+                setUserId(r.data.id);
+                this.reset(r.data.id, false, setIsSent);
+            }
+            else {
+                Alert.alert("Email is not registered.")
+            }
+        }, (e) => {
+            Alert.alert("Something went wrong.")
         })
     }
 
@@ -417,7 +502,7 @@ class ApiProvider extends Component {
             if (response.data.code == 200) {
                 props.navigation.reset({
                     index: 0,
-                    routes: [{ name: 'BottomTabMain' }]
+                    routes: [{ name: 'Profile' }]
                 })
                 Alert.alert("New password has been changed!")
             } else {
@@ -470,11 +555,19 @@ class ApiProvider extends Component {
                 notifications: this.state.notifications,
                 deleteNotifications: this.deleteNotifications,
                 questions: this.state.questions,
-                firstSetup: this.firstSetup,
+                signup: this.signup,
                 findUsername: this.findUsername,
                 securityCheck: this.securityCheck,
                 resetPassword: this.resetPassword,
                 changePassword: this.changePassword,
+                checker: this.checker,
+                checkers: this.state.checkers,
+                session: this.session,
+                verify: this.verify,
+                post_verify: this.post_verify,
+                findEmail: this.findEmail,
+                reset: this.reset,
+                post_reset: this.post_reset,
             }}>
                 {this.props.children}
             </ApiContext.Provider>
