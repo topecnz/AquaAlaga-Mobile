@@ -1,45 +1,79 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import LandingGradient from '../components/LandingGradient';
 import { ApiContext } from '../../server/Api';
 
 function LandingScreen(props) {
     const context = useContext(ApiContext);
-    // useEffect(() => {
-    //   console.log('test...' + context.isLoggedOn)
-    //   if (context.isLoggedOn) {
-    //     props.navigation.reset({
-    //         index: 0,
-    //         routes: [{ name: 'BottomTab' }]
-    //     })
-    //   } 
-    // }, []);
+    const [first, setIsFirst] = useState(false);
+    useEffect(() => {
+       storage()
+    }, []);
+
+    const storage = async () => {
+      try {
+        const value = await AsyncStorage.getItem('isFirst');
+        console.log(value);
+        if (!JSON.parse(value)) {
+          try {
+            const user = await AsyncStorage.getItem('account');
+            console.log(user);
+            if (!JSON.parse(user)) { 
+              props.navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }]
+              })
+            } else {
+              context.session(JSON.parse(user), props)
+            }
+          } catch (e) {
+
+          }
+        } else {
+          setIsFirst(true);
+        }
+      } catch (e) {
+
+      }
+    }
+
+    const isClicked = async () => {
+      try {
+        await AsyncStorage.setItem('isFirst', JSON.stringify(false));
+        props.navigation.navigate('Login')
+      } catch (e) {
+
+      }
+    }
     
     return (
       <View style={styles.container}>
         <LandingGradient/>
-        <View style={styles.containerInner}>
-          <View style={{  }}>
-            <Text style={styles.welcomeFont}>Welcome to</Text>
-          </View>
-          <View style={styles.titleContainer}>
-            <View style={styles.logoShadow}>
-              <Image
-                style={styles.logoSize}
-                resizeMode='contains'
-                source={require('../../assets/logo.png')}/>
+        {(first) ? (
+          <View style={styles.containerInner}>
+            <View style={{  }}>
+              <Text style={styles.welcomeFont}>Welcome to</Text>
             </View>
-            <Text style={styles.titleFont}>AquaAlaga</Text>
-          </View>
-          <View>
-            <Pressable onPress={() => props.navigation.navigate('Login')}>
-              <View style={styles.button}>
-                <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Get Started</Text>
+            <View style={styles.titleContainer}>
+              <View style={styles.logoShadow}>
+                <Image
+                  style={styles.logoSize}
+                  resizeMode='contains'
+                  source={require('../../assets/logo.png')}/>
               </View>
-            </Pressable>
+              <Text style={styles.titleFont}>AquaAlaga</Text>
+            </View>
+            <View>
+              <Pressable onPress={() => isClicked()}>
+                <View style={styles.button}>
+                  <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Get Started</Text>
+                </View>
+              </Pressable>
+            </View>
           </View>
-        </View>
-    </View>
+        ) : (null)}
+      </View>
     );
 }
 

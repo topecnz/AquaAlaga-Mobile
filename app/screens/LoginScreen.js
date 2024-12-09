@@ -46,6 +46,13 @@ function LoginScreen(props) {
                             <Text style={styles.buttonText}>Login</Text>
                         </View>
                     </Pressable>
+                    <Pressable onPress={() => {
+                        props.navigation.navigate('Signup')
+                    }}>
+                        <View style={styles.button}>
+                            <Text style={styles.buttonText}>Signup</Text>
+                        </View>
+                    </Pressable>
                     <Text onPress={() => {
                     props.navigation.navigate('Reset Password')
                 }} style={styles.forgotText}>Forgot Password</Text>
@@ -90,6 +97,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         borderRadius: 10,
+        marginVertical: 3,
     },
     buttonText: {
         color: "#FFFFFF",

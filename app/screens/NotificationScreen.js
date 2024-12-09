@@ -59,7 +59,7 @@ function NotificationScreen(props) {
                             </Pressable>
                         )) : (
                             <View style={styles.indicateView}>
-                                <Text style={styles.recentText}>No devices are found.</Text>
+                                <Text style={styles.recentText}>No notifications for this device</Text>
                             </View>
                         )
                         }
