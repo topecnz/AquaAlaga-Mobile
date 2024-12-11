@@ -3,9 +3,11 @@ import { StyleSheet, Text, View, Image, Button, Alert, Pressable } from 'react-n
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LandingGradient from '../components/LandingGradient';
 import { ApiContext } from '../../server/Api';
+import { MqttContext } from '../../server/Mqtt';
 
 function LandingScreen(props) {
     const context = useContext(ApiContext);
+    const mqtt = useContext(MqttContext);
     const [first, setIsFirst] = useState(false);
     useEffect(() => {
        storage()
@@ -25,7 +27,7 @@ function LandingScreen(props) {
                 routes: [{ name: 'Login' }]
               })
             } else {
-              context.session(JSON.parse(user), props)
+              context.session(JSON.parse(user), props, mqtt)
             }
           } catch (e) {
 
