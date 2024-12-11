@@ -83,7 +83,6 @@ export default function ScanWifiScreen(props) {
 
   const connectWifi = async () => {
     setIsWifiConnected(true)
-    Alert.alert("Connecting....")
     var data = {
       ssid: ssidName,
       password: password
@@ -99,7 +98,6 @@ export default function ScanWifiScreen(props) {
         WifiManager.connectToProtectedSSID(ssidName, password, false, false).then(() => {
           // ToastAndroid.show("Connected to Local Network!", ToastAndroid.LONG)
           setUrl(r.data.url);
-          Alert.alert(r.data.url);
           setIsWifiConnected(false);
           props.navigation.navigate('Link Device', {item: {
             name: ssidName,

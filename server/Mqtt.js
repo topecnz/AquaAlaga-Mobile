@@ -49,7 +49,7 @@ class MqttProvider extends Component {
         }
       };
 
-    onConnect = async () => {
+    onConnect = async (account_id) => {
         await client.init()
 
         client.on(MqttEvent.MESSAGE_RECEIVED,
@@ -104,7 +104,7 @@ class MqttProvider extends Component {
             // } catch (e) {
             //     console.log(e)
             // }
-            this.subscribe("/notification");
+            this.subscribe(`/${account_id}/notification`);
         });
         client.on(MqttEvent.SUBSCRIBED, (topic) => {
         // called when client has subscribed to a topic
@@ -207,7 +207,7 @@ class MqttProvider extends Component {
       };
 
     componentDidMount() {
-        this.onConnect();
+        // this.onConnect();
         this.notifRequest();
         
         
@@ -231,6 +231,7 @@ class MqttProvider extends Component {
                 data: this.state.data,
                 isDeleted: this.state.isDeleted,
                 isDeviceSelected: this.state.isDeviceSelected,
+                onConnect: this.onConnect,
             }}>
                 {this.props.children}
             </MqttContext.Provider>

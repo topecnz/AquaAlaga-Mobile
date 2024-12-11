@@ -290,7 +290,7 @@ class ApiProvider extends Component {
         })
     }
 
-    login = async (username, password, props) => {
+    login = async (username, password, props, mqtt) => {
         instance.get(`login?username=${username}&password=${password}`).then((response) => {
             console.log(response.data)
             this.setState({isLoggedOn: response.data.access, account: response.data.data}, async () => {
@@ -299,6 +299,7 @@ class ApiProvider extends Component {
                 if (this.state.isLoggedOn) {
                     try {
                         await AsyncStorage.setItem('account', JSON.stringify(response.data.data)).then(() => {
+                            mqtt.onConnect(response.data.data.id);
                             props.navigation.reset({
                                 index: 0,
                                 routes: [{ name: (!this.state.account.is_verified) ? 'Email Verification' : 'BottomTabMain' }]
@@ -342,8 +343,10 @@ class ApiProvider extends Component {
         })
     }
 
-    session = async (data, props) => {
+    session = async (data, props, mqtt) => {
         this.setState({account: data}, async () => {
+            console.log("logging in...")
+            mqtt.onConnect(data.id);
             props.navigation.reset({
                 index: 0,
                 routes: [{ name: (!this.state.account.is_verified) ? 'Email Verification' : 'BottomTabMain' }]

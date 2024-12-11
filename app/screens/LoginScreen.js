@@ -2,9 +2,11 @@ import React, { useContext, useState } from 'react';
 import { StyleSheet, Text, View, Image, Pressable, TextInput, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import LandingGradient from '../components/LandingGradient';
 import { ApiContext } from '../../server/Api';
+import { MqttContext } from '../../server/Mqtt';
 
 function LoginScreen(props) {
     const context = useContext(ApiContext);
+    const mqtt = useContext(MqttContext);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -41,7 +43,7 @@ function LoginScreen(props) {
                     />
                 </View>
                 <View>
-                    <Pressable onPress={() => context.login(username, password, props)}>
+                    <Pressable onPress={() => context.login(username, password, props, mqtt)}>
                         <View style={styles.button}>
                             <Text style={styles.buttonText}>Login</Text>
                         </View>
