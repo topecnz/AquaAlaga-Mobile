@@ -556,12 +556,21 @@ class ApiProvider extends Component {
     }
 
     deleteAccount = async (id, props) => {
-        instance.delete(`delete?_id=${id}`).then(() => {
+        instance.delete(`delete?_id=${id}`).then(async () => {
             Alert.alert("Your account has been deleted!");
-            props.navigation.reset({
-                index: 0,
-                routes: [{ name: 'Login' }]
-            })
+            try {
+                await AsyncStorage.removeItem('account').then(() => {
+                    props.navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'Login' }]
+                    })
+                }, (e) => {
+                    console.log(e);
+                });
+            } catch (e) {
+                console.log(e);
+            }
+            
         }, () => {
             Alert.alert("Failed to delete. Please try again later.")
         })
