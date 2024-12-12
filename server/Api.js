@@ -516,6 +516,57 @@ class ApiProvider extends Component {
         })
     }
 
+    changeEmail = async (data, props, isRedirect, setModalVisible, setIsChanged) => {
+        instance.post('emailchange', data, {
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            if (response.data.code == 200) {
+                account = this.state.account
+                account.email = data.email
+                this.setState({account: account}, () => {
+                    if (isRedirect) {
+                        props.navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Email Verification' }]
+                        })
+                        return;
+                    }
+                    
+                    instance.get(`verify?id=${account.id}`).then((r) => {
+                        Alert.alert("New email has been changed!");
+                        setModalVisible(false);
+                        setIsChanged(false);
+                        
+                    }, () => {
+                        Alert.alert("Try again.");
+                        setIsChanged(false);
+                    });
+                })
+            } else {
+                Alert.alert("Email is already taken.")
+                setIsChanged(false);
+            }
+        }).catch((e) => {
+            Alert.alert("Something went wrong", e)
+            setIsChanged(false);
+        })
+    }
+
+    deleteAccount = async (id, props) => {
+        instance.delete(`delete?_id=${id}`).then(() => {
+            Alert.alert("Your account has been deleted!");
+            props.navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }]
+            })
+        }, () => {
+            Alert.alert("Failed to delete. Please try again later.")
+        })
+    }
+
     componentDidMount() {
         // this.setState({schedInterval: setInterval(() => this.getSchedules(), 1000)});
         // this.getSchedules();
@@ -571,6 +622,8 @@ class ApiProvider extends Component {
                 findEmail: this.findEmail,
                 reset: this.reset,
                 post_reset: this.post_reset,
+                changeEmail: this.changeEmail,
+                deleteAccount: this.deleteAccount,
             }}>
                 {this.props.children}
             </ApiContext.Provider>
