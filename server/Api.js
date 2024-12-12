@@ -185,7 +185,8 @@ class ApiProvider extends Component {
             ip_address: device.ip_address,
             fish_breed: breed,
             temperature: parseInt(temp),
-            ph_level: parseInt(ph)
+            ph_level: parseInt(ph),
+            account_id: this.state.account.id,
         }
         console.log(data);
         instance.patch(`device?_id=${device.id}`, data, {
