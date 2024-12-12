@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput, Modal, ActivityIndicator } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiContext } from '../../server/Api';
@@ -7,6 +7,22 @@ import PasswordValidate from 'react-native-password-validate-checklist';
 
 function ProfileScreen(props) {
     const context = useContext(ApiContext);
+    const [email, setEmail] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [isChanged, setIsChanged] = useState(false);
+
+    const newEmail = async () => {
+        setIsChanged(true)
+        if (!/\S+@\S+\.\S+/.test(email)) {
+            Alert.alert("Error: Email must be in a valid format");
+            setIsChanged(false);
+            return;
+        }
+        context.changeEmail({
+            id: context.account.id,
+            email: email
+        }, props, true, setModalVisible, setIsChanged)
+    }
     
     return (
         <SafeAreaView style={styles.container}>
@@ -34,6 +50,32 @@ function ProfileScreen(props) {
                                     <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Change Password</Text>
                                 </View>
                             </Pressable>
+                            <Pressable onPress={() => setModalVisible(true)}>
+                                <View style={styles.button}>
+                                    <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Change Email</Text>
+                                </View>
+                            </Pressable>
+                            <Pressable onPress={() => {
+                                Alert.alert(
+                                    "Account Deletion",
+                                    "Are you sure to delete your account?",
+                                    [
+                                        {
+                                        text: "Yes",
+                                        onPress: () => {
+                                            context.deleteAccount(context.account.id, props)
+                                        },
+                                        },
+                                        {
+                                        text: "No",
+                                        },
+                                    ]
+                                    );
+                            }}>
+                                <View style={styles.deleteButton}>
+                                    <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Account Deletion</Text>
+                                </View>
+                            </Pressable>
                             <Pressable onPress={() => context.logout(props)}>
                                 <View style={styles.button}>
                                     <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Logout</Text>
@@ -43,6 +85,45 @@ function ProfileScreen(props) {
                     </View>
                 </View>
             </View>
+            <Modal 
+                animationType="fade" 
+                transparent={true} 
+                visible={modalVisible} 
+                onRequestClose={() => setModalVisible(false)} > 
+                <View style={styles.overlay}>
+                    <View style={styles.modalView}>
+                    <Text style={styles.recentText}>Enter your email</Text>
+                    <TextInput 
+                        style={styles.input}
+                        onChangeText={setEmail}
+                        value={email}
+                        keyboardType='email-address' />
+                    <View style={styles.buttonContainer}>
+                        { (!isChanged) ? (
+                        <View>
+                            <Pressable onPress={() => { console.log('Email: ' + email); newEmail();}}>
+                                <View style={styles.button}>
+                                    <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20, padding: 1 }}>OK</Text>
+                                </View>
+                            </Pressable>
+                            <Pressable onPress={() => {setModalVisible(false); setEmail('');}}>
+                                <View style={styles.button}>
+                                    <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20, padding: 1 }}>Cancel</Text>
+                                </View>
+                            </Pressable>
+                            </View> 
+                            ) : (
+                            <View style={{marginVertical: 30, justifyContent: "center", alignItems: "center"}}>
+                                <ActivityIndicator size="large" color="blue"/>
+                                <Text style={{fontSize: 20, fontWeight: "bold"}}>Changing...</Text>
+                            </View>
+                            )
+
+                        }
+                    </View>
+                    </View>
+                </View>
+            </Modal> 
         </SafeAreaView>
     );
 }
@@ -95,6 +176,15 @@ const styles = StyleSheet.create({
       borderRadius: 10,
       marginVertical: 5
     },
+    deleteButton: {
+      height: 50,
+      width: "auto",
+      backgroundColor: "red",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 10,
+      marginVertical: 5
+    },
     input: {
         height: 50,
         borderWidth: 1,
@@ -114,7 +204,38 @@ const styles = StyleSheet.create({
     labelTitle: {
         fontSize: 20,
         fontWeight: "bold",
-    }
+    },
+    overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalView: { 
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  buttonContainer: {
+    width: '100%',
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#ACACAC",
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 5 ,
+    width: '100%',
+    marginBottom: 10,
+  },
 });
 
 export default ProfileScreen;

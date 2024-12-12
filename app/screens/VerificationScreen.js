@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Alert, Platform } from 'react-native'
+import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Alert, Platform, Modal, ActivityIndicator } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { ApiContext } from '../../server/Api'
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +11,22 @@ export default function VerificationScreen(props) {
     const context = useContext(ApiContext);
     const [isSent, setIsSent] = useState(false);
     const [code, setCode] = useState('');
+    const [email, setEmail] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [isChanged, setIsChanged] = useState(false);
+
+    const newEmail = async () => {
+        setIsChanged(true)
+        if (!/\S+@\S+\.\S+/.test(email)) {
+            Alert.alert("Error: Email must be in a valid format");
+            setIsChanged(false);
+            return;
+        }
+        context.changeEmail({
+            id: context.account.id,
+            email: email
+        }, props, false, setModalVisible, setIsChanged)
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -42,6 +58,13 @@ export default function VerificationScreen(props) {
                                 }}>
                                     <View style={styles.button}>
                                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Verify</Text>
+                                    </View>
+                                </Pressable>
+                                <Pressable onPress={() => {
+                                    setModalVisible(true);
+                                }}>
+                                    <View style={styles.button}>
+                                        <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Change Email</Text>
                                     </View>
                                 </Pressable>
                                 <Pressable onPress={() => {
@@ -83,6 +106,45 @@ export default function VerificationScreen(props) {
                             </View>
                         </View>
                     )}
+                    <Modal 
+                        animationType="fade" 
+                        transparent={true} 
+                        visible={modalVisible} 
+                        onRequestClose={() => setModalVisible(false)} > 
+                        <View style={styles.overlay}>
+                            <View style={styles.modalView}>
+                            <Text style={styles.recentText}>Enter your email</Text>
+                            <TextInput 
+                                style={styles.input}
+                                onChangeText={setEmail}
+                                value={email}
+                                keyboardType='email-address' />
+                            <View style={styles.buttonContainer}>
+                                { (!isChanged) ? (
+                                <View>
+                                    <Pressable onPress={() => { console.log('Email: ' + email); newEmail();}}>
+                                        <View style={styles.button}>
+                                            <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20, padding: 1 }}>OK</Text>
+                                        </View>
+                                    </Pressable>
+                                    <Pressable onPress={() => {setModalVisible(false); setEmail('');}}>
+                                        <View style={styles.button}>
+                                            <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20, padding: 1 }}>Cancel</Text>
+                                        </View>
+                                    </Pressable>
+                                    </View> 
+                                    ) : (
+                                    <View style={{marginVertical: 30, justifyContent: "center", alignItems: "center"}}>
+                                        <ActivityIndicator size="large" color="blue"/>
+                                        <Text style={{fontSize: 20, fontWeight: "bold"}}>Changing...</Text>
+                                    </View>
+                                    )
+
+                                }
+                            </View>
+                            </View>
+                        </View>
+                    </Modal> 
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
@@ -169,5 +231,41 @@ const styles = StyleSheet.create({
     labelTitle: {
         fontSize: 20,
         fontWeight: "bold",
-    }
+    },
+    indicateView: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: 350
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalView: { 
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  buttonContainer: {
+    width: '100%',
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#ACACAC",
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 5 ,
+    width: '100%',
+    marginBottom: 10,
+  },
 });
