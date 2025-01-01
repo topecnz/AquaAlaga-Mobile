@@ -135,7 +135,7 @@ function LinkDeviceScreen(props) {
                             </View>
                         </View>
                         <View style={styles.gap}>
-                            <Text>Temperature</Text>
+                            <Text>pH Level</Text>
                             <View style={styles.picker}>
                                 <Picker
                                     selectedValue={ph}
