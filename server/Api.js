@@ -24,16 +24,20 @@ class ApiProvider extends Component {
             isLoggedOn: false,
             device: {},
             isListingDone: false,
-            questions: [
-                "What is your mother's maiden name?",
-                "What is the name of your favorite pet?",
-                "What high school did you attend?",
-                "What is your favorite book?",
-                "What was the name of your first car?",
-                "What is the name of the road you grew up on?",
-                "What was your favorite food as a child?",
-                "Where did you meet your spouse?",
-            ]
+            breed_data: [
+                {name: 'Angelfish', temp: '24', ph: '7'},
+                {name: 'Betta Fish', temp: '26', ph: '7'},
+                {name: 'Bloodfin Tetra', temp: '24', ph: '7'},
+                {name: 'Cardinal Tetra', temp: '24', ph: '7'},
+                {name: 'Discus Fish', temp: '28', ph: '7'},
+                {name: 'Goldfish', temp: '24', ph: '7'},
+                {name: 'Guppies', temp: '24', ph: '7'},
+                {name: 'Koi', temp: '24', ph: '7'},
+                {name: 'Mollies', temp: '26', ph: '7'},
+                {name: 'Neon Tetra', temp: '24', ph: '7'},
+                {name: 'Platyfish', temp: '24', ph: '7'},
+                {name: 'Swordtails', temp: '24', ph: '7'},
+            ],
         }
         this.data = []
     }
@@ -157,12 +161,27 @@ class ApiProvider extends Component {
         })
     }
 
-    getDevices = async () => {
+    // getDevices = async () => {
+    //     this.updateState(this, {isListingDone: false});
+    //     console.log(this.state.account.id);
+    //     setTimeout(() => {
+    //         instance.get(`device?_id=${this.state.account.id}`).then((response) => {
+    //             this.updateState(this, {devices: response.data})
+    //             this.updateState(this, {isListingDone: true});
+    //         },
+    //         () => {
+    //             Alert.alert('Something went wrong')
+    //             this.updateState(this, {isListingDone: true});
+    //         })
+    //     }, 2000)
+    // }
+    
+    getDevices = async (mqtt) => {
         this.updateState(this, {isListingDone: false});
         console.log(this.state.account.id);
         setTimeout(() => {
             instance.get(`device?_id=${this.state.account.id}`).then((response) => {
-                this.updateState(this, {devices: response.data})
+                mqtt.updateState(mqtt, {devices: response.data})
                 this.updateState(this, {isListingDone: true});
             },
             () => {
@@ -176,7 +195,7 @@ class ApiProvider extends Component {
         this.updateState(this, {device: data})
     }
 
-    updateDevice = async (device, name, type, breed, temp, ph, setIsLoading, updateDev) => {
+    updateDevice = async (device, name, type, breed, temp, ph, setIsLoading, updateDev, mqtt) => {
         let data = {
             id: device.id,
             name: name,
@@ -199,7 +218,7 @@ class ApiProvider extends Component {
                 if (response.data.code == 200) {
                     updateDev();
                     this.setDevice(data);
-                    this.getDevices();
+                    this.getDevices(mqtt);
                     setTimeout(() => {
                         Alert.alert('Device has been updated.');
                         setIsLoading(false);
@@ -618,7 +637,6 @@ class ApiProvider extends Component {
                 getNotifications: this.getNotifications,
                 notifications: this.state.notifications,
                 deleteNotifications: this.deleteNotifications,
-                questions: this.state.questions,
                 signup: this.signup,
                 findUsername: this.findUsername,
                 securityCheck: this.securityCheck,
@@ -634,6 +652,7 @@ class ApiProvider extends Component {
                 post_reset: this.post_reset,
                 changeEmail: this.changeEmail,
                 deleteAccount: this.deleteAccount,
+                breed_data: this.state.breed_data,
             }}>
                 {this.props.children}
             </ApiContext.Provider>

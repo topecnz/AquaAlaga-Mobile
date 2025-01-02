@@ -5,12 +5,14 @@ import ProfileScreen from '../screens/ProfileScreen';
 import NotificationScreen from "../screens/NotificationScreen";
 import { Ionicons } from '@expo/vector-icons';
 import { ApiContext } from '../../server/Api';
+import { MqttContext } from '../../server/Mqtt';
 import DeviceScreen from '../screens/DeviceScreen';
 
 const Tab = createBottomTabNavigator();
 
 function BottomTabMain(props) {
     const context = useContext(ApiContext);
+    const mqtt = useContext(MqttContext);
     return (
         <Tab.Navigator initialRouteName='Device' screenOptions={{
             headerShown: false,
@@ -29,7 +31,7 @@ function BottomTabMain(props) {
 
                     // Device
                     if (e.data.state.index == 0) {
-                        context.getDevices()
+                        context.getDevices(mqtt)
                     }
                 },
             }}>

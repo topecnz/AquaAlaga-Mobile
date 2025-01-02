@@ -30,7 +30,8 @@ class MqttProvider extends Component {
                 feed: 0,
             },
             isDeleted: false,
-            isDeviceSelected: false
+            isDeviceSelected: false,
+            devices: []
         }
     }
     notif = async (message) => {
@@ -69,6 +70,20 @@ class MqttProvider extends Component {
                 if (topic.includes("/notification")) {
                     this.notif(data);
                 }
+
+                if (topic.includes("/devices")) {
+                    new_devices = this.state.devices;
+
+                    console.log("New data: " + data.device_id);
+
+                    for (let i in new_devices) {
+                        if (new_devices[i].id == data.device_id) {
+                            new_devices[i].data = data;
+                            this.updateState(this, {devices: new_devices})
+                            break;
+                        }
+                    }
+                }
             }
         );
         client.on(MqttEvent.MESSAGE_PUBLISHED,
@@ -105,6 +120,7 @@ class MqttProvider extends Component {
             //     console.log(e)
             // }
             this.subscribe(`/${account_id}/notification`);
+            this.subscribe(`/${account_id}/devices`);
         });
         client.on(MqttEvent.SUBSCRIBED, (topic) => {
         // called when client has subscribed to a topic
@@ -206,6 +222,10 @@ class MqttProvider extends Component {
         
       };
 
+    storeDevices = (data) => {
+        this.updateState(this, {devices: data})
+    }
+
     componentDidMount() {
         // this.onConnect();
         this.notifRequest();
@@ -232,6 +252,9 @@ class MqttProvider extends Component {
                 isDeleted: this.state.isDeleted,
                 isDeviceSelected: this.state.isDeviceSelected,
                 onConnect: this.onConnect,
+                updateState: this.updateState,
+                storeDevices: this.storeDevices,
+                devices: this.state.devices,
             }}>
                 {this.props.children}
             </MqttContext.Provider>

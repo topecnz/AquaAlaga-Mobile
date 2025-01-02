@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, Pressable, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,16 +12,38 @@ function ViewDeviceScreen(props) {
     const [deviceName, setDeviceName] = useState(context.device.name);
     const [deviceType, setDeviceType] = useState(context.device.type);
     const [breed, setBreed] = useState(context.device.fish_breed);
+    const [otherBreed, setOtherBreed] = useState(context.device.fish_breed);
     const [temp, setTemp] = useState(context.device.temperature.toString());
     const [ph, setPh] = useState(context.device.ph_level.toString());
     const [isLoading, setIsLoading] = useState(false);
     const [loadingMsg, setLoadingMsg] = useState('');
+
+    useEffect(() => {
+        for (let i in context.breed_data) {
+            if (context.breed_data[i].name == context.device.fish_breed) {
+                setBreed(context.device.fish_breed)
+                setOtherBreed(null);
+                break;
+            }
+
+            setBreed('Custom');
+        }
+    }, []);
 
     const deleteDevice = () => {
         mqtt.publish(`/${context.device.id}/delete`, "DELETE")
     }
     const updateDevice = () => {
         mqtt.publish(`/${context.device.id}/update`, "UPDATE")
+    }
+
+    const setRecommendedData = (value) => {
+        for (let i in context.breed_data) {
+            if (context.breed_data[i].name == value) {
+                setTemp(context.breed_data[i].temp);
+                setPh(context.breed_data[i].ph);
+            }
+        }
     }
 
     return (
@@ -44,27 +66,55 @@ function ViewDeviceScreen(props) {
                             />
                         </View>
                         <View style={styles.gap}>
-                            <Text style={styles.labelTitle}>Type</Text>
+                            <Text style={styles.labelTitle}>Type of Water</Text>
                             <View style={styles.picker}>
                                 <Picker
                                     selectedValue={deviceType}
                                     onValueChange={(itemValue, itemIndex) =>
                                         setDeviceType(itemValue)
                                     }>
-                                    <Picker.Item label="Indoor" value="Indoor" />
-                                    <Picker.Item label="Outdoor" value="Outdoor" />
+                                    <Picker.Item label="Tap Water" value="Tap Water" />
+                                    <Picker.Item label="Well Water" value="Well Water" />
+                                    <Picker.Item label="Rainwater" value="Rainwater" />
+                                    <Picker.Item label="Natural Waterways" value="Natural Waterways" />
+                                    <Picker.Item label="Distilled Water" value="Distilled Water" />
+                                    <Picker.Item label="Deionized Water" value="Deionized Water" />
+                                    <Picker.Item label="RO Water" value="RO Water" />
                                 </Picker>
                             </View>
                         </View>
                         <View style={styles.gap}>
                             <Text style={styles.labelTitle}>Breed</Text>
-                            <TextInput
-                                style={styles.input}
-                                onChangeText={setBreed}
-                                value={breed}
-                                placeholder='Breed'
-                            />
+                            <View style={styles.picker}>
+                                <Picker
+                                    selectedValue={breed}
+                                    onValueChange={(itemValue, itemIndex) => {
+                                            setBreed(itemValue)
+                                            setOtherBreed((itemValue != 'Custom') ? null : 'Custom' )
+                                            setRecommendedData(itemValue);
+                                        }
+                                    }>
+                                    <Picker.Item label="Custom" value="Custom" />
+                                    {
+                                        context.breed_data.sort((a, b) => a.name.localeCompare(b.name)).map((item, index) => 
+                                            <Picker.Item key={index} label={item.name} value={item.name} />
+                                        )
+                                    }
+                                </Picker>
+                            </View>
                         </View>
+                        {
+                            (otherBreed != undefined) ? (
+                                <View style={styles.gap}>
+                                    <TextInput
+                                        style={styles.input}
+                                        onChangeText={setOtherBreed}
+                                        value={otherBreed}
+                                        placeholder='Custom'
+                                    />
+                                </View>
+                            ) : (null)
+                        }
                         <View style={styles.gap}>
                             <Text>Temperature</Text>
                             <View style={styles.picker}>
@@ -73,6 +123,11 @@ function ViewDeviceScreen(props) {
                                     onValueChange={(itemValue, itemIndex) =>
                                         setTemp(itemValue)
                                     }>
+                                    <Picker.Item label="18" value="18" />
+                                    <Picker.Item label="19" value="19" />
+                                    <Picker.Item label="20" value="20" />
+                                    <Picker.Item label="21" value="21" />
+                                    <Picker.Item label="22" value="22" />
                                     <Picker.Item label="23" value="23" />
                                     <Picker.Item label="24" value="24" />
                                     <Picker.Item label="25" value="25" />
@@ -121,9 +176,14 @@ function ViewDeviceScreen(props) {
                             (
                                 <View>
                                     <Pressable onPress={() => {
+                                        const breedData = (breed != undefined) ? breed : otherBreed;
+                                        if (!ph || !temp || !deviceType || !deviceName || !breedData) {
+                                            Alert.alert("Please enter the required fields!");
+                                            return;
+                                        }
                                         setLoadingMsg("Updating...")
                                         setIsLoading(true);
-                                        context.updateDevice(context.device, deviceName, deviceType, breed, temp, ph, setIsLoading, updateDevice)
+                                        context.updateDevice(context.device, deviceName, deviceType, breedData, temp, ph, setIsLoading, updateDevice, mqtt)
                                     }}>
                                         <View style={styles.button}>
                                             <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Update</Text>

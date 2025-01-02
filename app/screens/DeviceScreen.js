@@ -10,9 +10,10 @@ export default function DeviceScreen(props) {
     const mqtt = useContext(MqttContext);
 
     const [isSelected, setIsSelected] = useState({});
+    const [devices, setDevices] = useState({});
 
     useEffect(() => {
-        context.getDevices();
+        context.getDevices(mqtt);
     }, []);
 
     const onSelect = (res, item) => {
@@ -37,15 +38,15 @@ export default function DeviceScreen(props) {
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Add Device</Text>
                     </View>
                 </Pressable>
-                <Pressable onPress={async () => context.getDevices()}>
+                <Pressable onPress={async () => context.getDevices(mqtt)}>
                     <View style={styles.button}>
                         <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Refresh</Text>
                     </View>
                 </Pressable>
                 {(context.isListingDone) ? (
                     <ScrollView style={{marginBottom: 140, marginTop: 15}}>
-                        {(context.devices.length) ? (
-                            context.devices.sort((a, b) => a.name.localeCompare(b.name)).map((item, index) => 
+                        {(mqtt.devices.length) ? (
+                            mqtt.devices.sort((a, b) => a.name.localeCompare(b.name)).map((item, index) => 
                                 <Pressable key={item.id} style={styles.cardBody} onPress={() => {
                                     mqtt.subscribe(`/${item.id}/sensor`, {
                                         item:  item,
@@ -60,6 +61,55 @@ export default function DeviceScreen(props) {
                                     <View style={{padding: 10}}>
                                         <Text style={styles.recentText}>{item.name}</Text>
                                         <Text style={styles.recentSubText}>Type: {item.type}</Text>
+                                        {
+                                            (item.data) ? 
+                                                (<View>
+                                                    <View style={styles.recentData}>
+                                                        <Text style={styles.recentSubText}>Temperature: {item.data.temp}C</Text>
+                                                        { (item.temperature + 3 >= item.data.temp
+                                                            && item.temperature - 3 <= item.data.temp)? (
+                                                                <View>
+                                                                    <Text style={styles.normalStatus}>NORMAL</Text>
+                                                                </View>
+                                                            ) : (
+                                                                (item.temperature + 3 < item.data.temp)? (
+                                                                    <View>
+                                                                        <Text style={styles.highStatus}>HIGH</Text>
+                                                                    </View>
+                                                                ):(
+                                                                    <View>
+                                                                        <Text style={styles.lowStatus}>LOW</Text>
+                                                                    </View>
+                                                                )
+                                                            )
+                
+                                                        }
+                                                    </View>
+                                                    <View style={styles.recentData}>
+                                                        <Text style={styles.recentSubText}>pH Level: {item.data.pH}</Text>
+                                                        { (item.ph_level + 2 >= item.data.pH
+                                                            && item.ph_level - 2 <= item.data.pH)? (
+                                                                <View>
+                                                                    <Text style={styles.normalStatus}>NORMAL</Text>
+                                                                </View>
+                                                            ) : (
+                                                                (item.ph_level + 2 < item.data.pH)? (
+                                                                    <View>
+                                                                        <Text style={styles.highStatus}>HIGH</Text>
+                                                                    </View>
+                                                                ):(
+                                                                    <View>
+                                                                        <Text style={styles.lowStatus}>LOW</Text>
+                                                                    </View>
+                                                                )
+                                                            )
+                
+                                                        }
+                                                    </View>
+                                                </View>)
+                                                :
+                                                (<Text style={styles.recentSubText}>Offline</Text>)
+                                        }
                                     </View>
                                 </Pressable>
                             )
@@ -160,5 +210,42 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         height: 350
+    },
+    recentData: {
+        flexDirection: "row",
+        marginVertical: 1
+    },
+    normalStatus: {
+        fontWeight: "600",
+        color: "white",
+        marginHorizontal: 5,
+        paddingHorizontal: 8,
+        backgroundColor: "green",
+        borderRadius: 10,
+        borderColor: "black",
+        borderWidth: 1
+    },
+    highStatus: {
+        fontWeight: "600",
+        color: "white",
+        marginHorizontal: 5,
+        paddingHorizontal: 8,
+        backgroundColor: "red",
+        borderRadius: 10,
+        borderColor: "black",
+        borderWidth: 1
+    },
+    lowStatus: {
+        fontWeight: "600",
+        color: "black",
+        marginHorizontal: 5,
+        paddingHorizontal: 8,
+        backgroundColor: "yellow",
+        borderRadius: 10,
+        borderColor: "black",
+        borderWidth: 1
+    },
+    gap: {
+      marginVertical: 2  
     },
 });
