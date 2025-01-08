@@ -31,7 +31,7 @@ function NotificationScreen(props) {
                                     }
                                 }>
                                 <Picker.Item label="-- Select Device --" value="" enabled={false}/>
-                                {context.devices.sort((a,b) => a.name.localeCompare(b.name)).map((item, index) =>
+                                {mqtt.devices.sort((a,b) => a.name.localeCompare(b.name)).map((item, index) =>
                                     <Picker.Item key={item.id} label={item.name} value={item.id} />
                                 )}
                                 {/* <Picker.Item label="Indoor" value="Indoor" />
@@ -45,8 +45,8 @@ function NotificationScreen(props) {
                                 <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Clear Notification</Text>
                             </View>
                         </Pressable>
-                        {(mqtt.notifications.length)? (
-                            mqtt.notifications.sort((a, b) => a.created_at.localeCompare(b.created_at)).reverse().map((item, index) => 
+                        {(context.notifications.length)? (
+                            context.notifications.sort((a, b) => a.created_at.localeCompare(b.created_at)).reverse().map((item, index) => 
                             <Pressable key={item.id} style={styles.cardBody}>
                                 <View style={{flexDirection: "column"}}>
                                     <View>
