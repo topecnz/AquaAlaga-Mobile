@@ -78,7 +78,7 @@ class ApiProvider extends Component {
         }).then((response) => {
             if (response.data.code == 200) {
                 mqtt.publish(`/${id}/schedule`, "OK");
-                Alert.alert('Schedule Added to Database!');
+                Alert.alert('Schedule added!');
                 props.navigation.goBack();
             }
             else if (response.data.code == 409) {
@@ -108,7 +108,7 @@ class ApiProvider extends Component {
         }).then((response) => {
             if (response.data.code == 200) {
                 mqtt.publish(`/${device_id}/schedule`, "OK");
-                Alert.alert('Schedule Updated to Database!');
+                Alert.alert('Schedule updated!');
                 props.navigation.goBack();
             }
             else if (response.data.code == 409) {
@@ -131,7 +131,7 @@ class ApiProvider extends Component {
         }).then((response) => {
             if (response.data.code == 200) {
                 mqtt.publish(`/${id}/schedule`, "OK");
-                Alert.alert('Schedule Deleted to Database!');
+                Alert.alert('Schedule deleted!');
                 props.navigation.goBack();
             }
             else {
