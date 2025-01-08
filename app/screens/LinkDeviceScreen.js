@@ -11,8 +11,9 @@ import { Buffer } from 'buffer';
 
 function LinkDeviceScreen(props) {
     const context = useContext(ApiContext);
-    const [type, setType] = useState('Indoor');
-    const [breed, setBreed] = useState('Fish');
+    const [type, setType] = useState('Tap Water');
+    const [breed, setBreed] = useState('Goldfish');
+    const [otherBreed, setOtherBreed] = useState(undefined);
     const [temp, setTemp] = useState('27');
     const [ph, setPh] = useState('7');
     const [isLinkingDone, setIsLinkingDone] = useState(true);
@@ -72,6 +73,15 @@ function LinkDeviceScreen(props) {
         })
     }
 
+    const setRecommendedData = (value) => {
+        for (let i in context.breed_data) {
+            if (context.breed_data[i].name == value) {
+                setTemp(context.breed_data[i].temp);
+                setPh(context.breed_data[i].ph);
+            }
+        }
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <MainGradient/>
@@ -92,27 +102,55 @@ function LinkDeviceScreen(props) {
                             />
                         </View>
                         <View style={styles.gap}>
-                            <Text>Type</Text>
+                            <Text>Type of Water</Text>
                             <View style={styles.picker}>
                                 <Picker
                                     selectedValue={type}
                                     onValueChange={(itemValue, itemIndex) =>
                                         setType(itemValue)
                                     }>
-                                    <Picker.Item label="Indoor" value="Indoor" />
-                                    <Picker.Item label="Outdoor" value="Outdoor" />
+                                    <Picker.Item label="Tap Water" value="Tap Water" />
+                                    <Picker.Item label="Well Water" value="Well Water" />
+                                    <Picker.Item label="Rainwater" value="Rainwater" />
+                                    <Picker.Item label="Natural Waterways" value="Natural Waterways" />
+                                    <Picker.Item label="Distilled Water" value="Distilled Water" />
+                                    <Picker.Item label="Deionized Water" value="Deionized Water" />
+                                    <Picker.Item label="RO Water" value="RO Water" />
                                 </Picker>
                             </View>
                         </View>
-                        <View>
-                            <Text>Fish Breed</Text>
-                            <TextInput
-                                style={styles.input}
-                                onChangeText={setBreed}
-                                value={breed}
-                                placeholder='Fish Breed'
-                            />
+                        <View style={styles.gap}>
+                            <Text style={styles.labelTitle}>Breed</Text>
+                            <View style={styles.picker}>
+                                <Picker
+                                    selectedValue={breed}
+                                    onValueChange={(itemValue, itemIndex) => {
+                                            setBreed(itemValue)
+                                            setOtherBreed((itemValue != 'Custom') ? null : 'Custom' )
+                                            setRecommendedData(itemValue);
+                                        }
+                                    }>
+                                    <Picker.Item label="Custom" value="Custom" />
+                                    {
+                                        context.breed_data.sort((a, b) => a.name.localeCompare(b.name)).map((item, index) => 
+                                            <Picker.Item key={index} label={item.name} value={item.name} />
+                                        )
+                                    }
+                                </Picker>
+                            </View>
                         </View>
+                        {
+                            (otherBreed != undefined) ? (
+                                <View style={styles.gap}>
+                                    <TextInput
+                                        style={styles.input}
+                                        onChangeText={setOtherBreed}
+                                        value={otherBreed}
+                                        placeholder='Custom'
+                                    />
+                                </View>
+                            ) : (null)
+                        }
                         <View style={styles.gap}>
                             <Text>Temperature</Text>
                             <View style={styles.picker}>
@@ -121,6 +159,11 @@ function LinkDeviceScreen(props) {
                                     onValueChange={(itemValue, itemIndex) =>
                                         setTemp(itemValue)
                                     }>
+                                    <Picker.Item label="18" value="18" />
+                                    <Picker.Item label="19" value="19" />
+                                    <Picker.Item label="20" value="20" />
+                                    <Picker.Item label="21" value="21" />
+                                    <Picker.Item label="22" value="22" />
                                     <Picker.Item label="23" value="23" />
                                     <Picker.Item label="24" value="24" />
                                     <Picker.Item label="25" value="25" />
@@ -150,8 +193,9 @@ function LinkDeviceScreen(props) {
                         </View>
                         { (isLinkingDone) ? (
                                 <Pressable onPress={() => {
-                                    if (!ph || !temp || !type || !deviceName || !breed) {
-                                        Alert.alert("Please check fields!");
+                                    const breedData = (breed != undefined) ? breed : otherBreed;
+                                    if (!ph || !temp || !type || !deviceName || !breedData) {
+                                        Alert.alert("Please enter the required fields!");
                                         return;
                                     }
                                     connectDevice();

@@ -52,11 +52,11 @@ function HomeScreen(props) {
                             <Text style={styles.recentText2}>{context.device.fish_breed}</Text>
                         </View>
                         <View style={styles.gap}>
-                            <Text style={styles.recentText}>Temperature</Text>
+                            <Text style={styles.recentText}>Recommended Temperature</Text>
                             <Text style={styles.recentText2}>{context.device.temperature}C</Text>
                         </View>
                         <View style={styles.gap}>
-                            <Text style={styles.recentText}>pH Level</Text>
+                            <Text style={styles.recentText}>Recommended pH Level</Text>
                             <Text style={styles.recentText2}>{context.device.ph_level}</Text>
                         </View>
                         <View style={styles.gap}>

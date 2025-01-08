@@ -82,6 +82,12 @@ function ControlScreen(props) {
                     <Text style={styles.cardTitle}>Remote Feed</Text>
                     <Text style={styles.cardSubTitle}>Press and hold the button to activate feeding.</Text>
                     <Text style={styles.cardSubTitle}>Release the button to deactivate.</Text>
+                    {
+                        (!mqtt.data.feed)? 
+                            (<Text style={styles.cardSubTitleRed}>The food canister is empty. Please refill.</Text>)
+                            :
+                            (null)
+                    }
                     <View style={styles.cardBody}>
                         <Pressable style={styles.buttonMargin} onLongPress={() => {
                             mqtt.publish(`/${context.device.id}/remote`, "ON")
@@ -126,6 +132,11 @@ const styles = StyleSheet.create({
     cardSubTitle: {
         fontSize: 16,
         color: "grey"
+    },
+    cardSubTitleRed: {
+        fontSize: 16,
+        color: "red",
+        fontWeight: "bold"
     },
     cardBody: {
         borderWidth: 1,

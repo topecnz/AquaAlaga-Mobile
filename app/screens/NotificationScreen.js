@@ -3,11 +3,13 @@ import { StyleSheet, Text, View, Image, Button, Alert, Pressable, ScrollView } f
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiContext } from '../../server/Api';
+import { MqttContext } from '../../server/Mqtt';
 import { Picker } from '@react-native-picker/picker';
 import moment from 'moment';
 
 function NotificationScreen(props) {
     const context = useContext(ApiContext);
+    const mqtt = useContext(MqttContext);
     const [device, setDevice] = useState("");
     return (
         <SafeAreaView style={styles.container}>
@@ -29,7 +31,7 @@ function NotificationScreen(props) {
                                     }
                                 }>
                                 <Picker.Item label="-- Select Device --" value="" enabled={false}/>
-                                {context.devices.sort((a,b) => a.name.localeCompare(b.name)).map((item, index) =>
+                                {mqtt.devices.sort((a,b) => a.name.localeCompare(b.name)).map((item, index) =>
                                     <Picker.Item key={item.id} label={item.name} value={item.id} />
                                 )}
                                 {/* <Picker.Item label="Indoor" value="Indoor" />

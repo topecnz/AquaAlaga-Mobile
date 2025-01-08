@@ -37,7 +37,7 @@ export default function SignUpScreen(props) {
                         />
                         <View>
                         {(username.length >= 6) ? (
-                            !context.checkers.find(user => user.username === username) ? (
+                            !context.checkers.find(user => user.username === username.trim()) ? (
                                 <Text style={{color: "green"}}>Available!</Text>
                             ) : (
                                 <Text style={{color: "red"}}>Username is already taken.</Text>
@@ -62,7 +62,7 @@ export default function SignUpScreen(props) {
                         />
                         <View>
                         {(/\S+@\S+\.\S+/.test(email)) ? (
-                            !context.checkers.find(user => user.email === email) ? (
+                            !context.checkers.find(user => user.email === email.trim()) ? (
                                 <Text style={{color: "green"}}>Available!</Text>
                             ) : (
                                 <Text style={{color: "red"}}>Email is already taken.</Text>
@@ -128,15 +128,15 @@ export default function SignUpScreen(props) {
                             if (!validated || !email.length || !username.length) {
                                 Alert.alert("Error: Check your fields");
                                 return
-                            } else if (!/\S+@\S+\.\S+/.test(email)) {
+                            } else if (!/\S+@\S+\.\S+/.test(email.trim())) {
                                 Alert.alert("Error: Email must be in a valid format");
-                            } else if (username.length < 6) {
+                            } else if (username.length.trim() < 6) {
                                 Alert.alert("Error: Username must contain at least 6 characters");
                             }
                             context.signup({
-                                username: username,
+                                username: username.trim(),
                                 password: password,
-                                email: email
+                                email: email.trim()
                             }, props)
                         }}>
                             <View style={styles.button}>
