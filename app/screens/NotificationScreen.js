@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, Button, Alert, Pressable, ScrollView } f
 import MainGradient from '../components/MainGradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiContext } from '../../server/Api';
+import { MqttContext } from '../../server/Mqtt';
 import { Picker } from '@react-native-picker/picker';
 import moment from 'moment';
 
