@@ -8,6 +8,7 @@ import moment from 'moment';
 
 function NotificationScreen(props) {
     const context = useContext(ApiContext);
+    const mqtt = useContext(MqttContext);
     const [device, setDevice] = useState("");
     return (
         <SafeAreaView style={styles.container}>
@@ -43,8 +44,8 @@ function NotificationScreen(props) {
                                 <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 20 }}>Clear Notification</Text>
                             </View>
                         </Pressable>
-                        {(context.notifications.length)? (
-                            context.notifications.sort((a, b) => a.created_at.localeCompare(b.created_at)).reverse().map((item, index) => 
+                        {(mqtt.notifications.length)? (
+                            mqtt.notifications.sort((a, b) => a.created_at.localeCompare(b.created_at)).reverse().map((item, index) => 
                             <Pressable key={item.id} style={styles.cardBody}>
                                 <View style={{flexDirection: "column"}}>
                                     <View>
