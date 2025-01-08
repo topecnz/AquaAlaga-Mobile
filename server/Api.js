@@ -160,21 +160,6 @@ class ApiProvider extends Component {
             Alert.alert("Connection Lost. Please try again.")
         })
     }
-
-    // getDevices = async () => {
-    //     this.updateState(this, {isListingDone: false});
-    //     console.log(this.state.account.id);
-    //     setTimeout(() => {
-    //         instance.get(`device?_id=${this.state.account.id}`).then((response) => {
-    //             this.updateState(this, {devices: response.data})
-    //             this.updateState(this, {isListingDone: true});
-    //         },
-    //         () => {
-    //             Alert.alert('Something went wrong')
-    //             this.updateState(this, {isListingDone: true});
-    //         })
-    //     }, 2000)
-    // }
     
     getDevices = async (mqtt) => {
         this.updateState(this, {isListingDone: false});
